@@ -339,6 +339,120 @@
   }
   .empty-state .icon { font-size: 36px; margin-bottom: 14px; }
 
+  /* ── STAT BAR (Hoje) ── */
+  .stat-bar {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 22px;
+  }
+  .stat-box {
+    background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 14px; text-align: center;
+  }
+  .stat-box .num { font-size: 24px; font-weight: 900; color: var(--dark); line-height: 1; }
+  .stat-box .lbl { font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+
+  /* ── TAG FILTERS (coloridas) ── */
+  .tag-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .tag-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: .2px;
+    padding: 6px 14px; border-radius: 20px; cursor: pointer;
+    border: 1.5px solid transparent; transition: all .15s; opacity: .55;
+  }
+  .tag-chip:hover { opacity: .85; transform: translateY(-1px); }
+  .tag-chip.active { opacity: 1; border-color: currentColor; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+  .tag-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .tag-chip-sm {
+    display: inline-flex; align-items: center; font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px; letter-spacing: .2px;
+  }
+
+  /* ── TAREFAS: TABELA ── */
+  .tarefas-table-wrap {
+    background: var(--white); border-radius: 14px; border: 1px solid var(--border);
+    overflow: hidden; overflow-x: auto;
+  }
+  table.tarefas-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 640px; }
+  table.tarefas-table th {
+    text-align: left; font-size: 9.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--bg);
+    white-space: nowrap;
+  }
+  table.tarefas-table td {
+    padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle;
+  }
+  table.tarefas-table tr:last-child td { border-bottom: none; }
+  table.tarefas-table tr:hover td { background: var(--bg); }
+  table.tarefas-table tr.feito td { color: var(--muted); }
+  table.tarefas-table tr.feito .tt-titulo { text-decoration: line-through; }
+  .tt-titulo { font-weight: 600; color: var(--dark); }
+  .tt-status {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .tt-status.feito { background: #D4EAD4; color: #2E6B2E; }
+  .tt-status.pendente { background: #FFE9D4; color: #A05A1E; }
+
+  /* ── AGENDA: SEMANA ── */
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;
+  }
+  .week-nav-label { font-size: 14px; font-weight: 800; color: var(--dark); }
+  .week-nav-btn {
+    background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+    width: 34px; height: 34px; cursor: pointer; font-size: 14px; color: var(--dark);
+    transition: all .15s;
+  }
+  .week-nav-btn:hover { border-color: var(--accent); background: var(--bg); }
+  .week-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
+  }
+  .week-col {
+    background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+    padding: 12px; min-height: 160px;
+  }
+  .week-col.is-today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .week-col-head { text-align: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .week-col-day { font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; }
+  .week-col-num { font-size: 19px; font-weight: 900; color: var(--dark); }
+  .week-col.is-today .week-col-num { color: var(--accent-dark, #8B6914); }
+  .week-task {
+    font-size: 11px; padding: 7px 9px; border-radius: 9px; margin-bottom: 6px;
+    background: var(--bg); border-left: 3px solid var(--accent); line-height: 1.4;
+  }
+  .week-task.feito { opacity: .5; text-decoration: line-through; }
+  .week-task .wt-time { font-weight: 700; color: var(--accent-dark, #8B6914); margin-right: 4px; }
+  .week-empty { font-size: 11px; color: #ccc; text-align: center; padding: 20px 0; }
+
+  /* ── CLIENTES: ACCORDION ── */
+  .acc-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .acc-header {
+    display: flex; align-items: center; gap: 14px; padding: 18px 22px; cursor: pointer;
+    transition: background .15s;
+  }
+  .acc-header:hover { background: var(--bg); }
+  .acc-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .acc-name { font-size: 15px; font-weight: 800; color: var(--dark); flex: 1; }
+  .acc-count {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 3px 11px;
+  }
+  .acc-arrow { font-size: 11px; color: var(--muted); transition: transform .2s; }
+  .acc-card.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { display: none; padding: 0 22px 18px; }
+  .acc-card.open .acc-body { display: block; }
+  .acc-task {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-top: 1px solid var(--border); font-size: 12.5px;
+  }
+  .acc-task:first-child { border-top: none; }
+  .acc-task .at-date { font-size: 10px; color: var(--muted); font-weight: 700; min-width: 70px; }
+  .acc-task .at-title { flex: 1; color: var(--dark); font-weight: 600; }
+  .acc-task.feito .at-title { color: var(--muted); text-decoration: line-through; }
+
   /* ── RESPONSIVE ── */
   @media(max-width:700px){
     .main { padding: 20px 16px; }
@@ -348,6 +462,8 @@
     .clientes-grid { grid-template-columns: 1fr; }
     .hero-right-badges { display: none; }
     .topbar-label { display: none; }
+    .stat-bar { grid-template-columns: repeat(2, 1fr); }
+    .week-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -399,234 +515,246 @@
           <div class="hero-name" id="hero-name">Laís Valentini ✦</div>
           <div class="hero-date" id="hero-date">—</div>
         </div>
-        <div class="hero-right-badges" id="cat-badges"></div>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="num" id="stat-hoje">0</div><div class="lbl">Hoje</div></div>
-        <div class="hero-stat"><div class="num" id="stat-pend">0</div><div class="lbl">Pendentes</div></div>
-        <div class="hero-stat"><div class="num" id="stat-feito">0</div><div class="lbl">Feitas</div></div>
-        <div class="hero-stat"><div class="num" id="stat-clientes">0</div><div class="lbl">Clientes</div></div>
       </div>
     </div>
 
-    <!-- ── CHECKLIST DO DIA ── -->
-    <div class="section-title">✦ Checklist de hoje · 08/06</div>
+    <div class="stat-bar" id="stat-bar"></div>
+
+    <div class="section-title">✦ Filtrar por tag · clique pra ver só aquela frente</div>
+    <div class="tag-filters" id="tag-filters"></div>
+
+    <div class="section-title" id="hoje-list-title">✦ Tarefas de hoje</div>
     <div class="checklist-card">
       <div class="checklist-progress">
         <div class="cp-bar"><div class="cp-fill" id="cp-fill"></div></div>
-        <div class="cp-label" id="cp-label">0 de 13 feitas</div>
+        <div class="cp-label" id="cp-label">0 de 0 feitas</div>
       </div>
       <div id="checklist-list"></div>
     </div>
-
-    <div id="hoje-agenda-wrap"></div>
-    <div id="hoje-tarefas-wrap"></div>
   </div>
 
   <!-- ── TAREFAS ── -->
   <div class="view" id="view-tarefas">
-    <div class="tarefas-filters" id="tarefas-filters">
-      <button class="filter-btn active" data-filter="todos">Todos</button>
-      <button class="filter-btn" data-filter="pendente">Pendente</button>
-      <button class="filter-btn" data-filter="andamento">Em andamento</button>
-      <button class="filter-btn" data-filter="feito">Feito</button>
-      <button class="filter-btn" data-filter="mentoria">Mentoria</button>
-      <button class="filter-btn" data-filter="conteudo">Conteúdo</button>
-      <button class="filter-btn" data-filter="pessoal">Pessoal</button>
-      <button class="filter-btn" data-filter="admin">Admin</button>
+    <div class="section-title">✦ Todas as tarefas · mais recentes no topo, mais antigas embaixo</div>
+    <div class="tarefas-table-wrap">
+      <table class="tarefas-table">
+        <thead>
+          <tr><th>Data</th><th>Horário</th><th>Tarefa</th><th>Cliente / Tag</th><th>Status</th></tr>
+        </thead>
+        <tbody id="tarefas-table-body"></tbody>
+      </table>
     </div>
-    <div id="tarefas-list"></div>
   </div>
 
   <!-- ── AGENDA ── -->
   <div class="view" id="view-agenda">
-    <div id="agenda-list"></div>
+    <div class="week-nav">
+      <button class="week-nav-btn" id="week-prev" title="Semana anterior">←</button>
+      <div class="week-nav-label" id="week-label">—</div>
+      <button class="week-nav-btn" id="week-next" title="Próxima semana">→</button>
+    </div>
+    <div class="week-grid" id="week-grid"></div>
   </div>
 
   <!-- ── CLIENTES ── -->
   <div class="view" id="view-clientes">
-    <div class="clientes-grid" id="clientes-grid"></div>
+    <div class="section-title">✦ Tarefas por cliente · clique pra abrir</div>
+    <div id="clientes-acc"></div>
   </div>
 
 </div>
 
 <script>
-const SHEET_ID = new URLSearchParams(location.search).get('sheet') || '';
 const TODAY = new Date();
 TODAY.setHours(0,0,0,0);
-
-// ── UTILS ──
-function parseCSV(text) {
-  const rows = []; let cur = ''; let inQ = false; let row = [];
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (c === '"') { if (inQ && text[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
-    else if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
-    else if ((c === '\n' || c === '\r') && !inQ) {
-      if (c === '\r' && text[i+1] === '\n') i++;
-      row.push(cur.trim()); rows.push(row); row = []; cur = '';
-    } else cur += c;
-  }
-  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
-  if (rows.length < 2) return [];
-  const headers = rows[0].map(h => h.replace(/^"|"$/g,'').trim());
-  return rows.slice(1).filter(r => r.some(c => c)).map(r => {
-    const obj = {};
-    headers.forEach((h,i) => { obj[h] = (r[i]||'').replace(/^"|"$/g,'').trim(); });
-    return obj;
-  });
-}
-
-async function fetchCSV(tab) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
-  const r = await fetch(url);
-  return parseCSV(await r.text());
-}
+function pad(n){ return String(n).padStart(2,'0'); }
+const TODAY_STR = `${TODAY.getFullYear()}-${pad(TODAY.getMonth()+1)}-${pad(TODAY.getDate())}`;
 
 function parseDate(str) {
   if (!str) return null;
-  // Supports dd/mm/yyyy or yyyy-mm-dd
-  if (str.includes('/')) {
-    const [d,m,y] = str.split('/');
-    return new Date(+y, +m-1, +d);
-  }
   const [y,m,d] = str.split('-');
   return new Date(+y, +m-1, +d);
 }
+function fmtDateFull(str) {
+  const d = parseDate(str);
+  if (!d) return '—';
+  return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function dateStr(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
 
-function isToday(d) {
-  if (!d) return false;
-  const x = new Date(d); x.setHours(0,0,0,0);
-  return x.getTime() === TODAY.getTime();
+// ── TAGS (frentes de cliente / pessoal) — cada uma com cor própria ──
+const TAG_INFO = {
+  'Engemont':      { color:'#1E5F6B', bg:'#D4E8EA' },
+  'Vasart':        { color:'#7A5230', bg:'#EAD9C8' },
+  'YWG':           { color:'#5B4B8A', bg:'#E1DAF0' },
+  'Bruna':         { color:'#2E6B4E', bg:'#D4EADD' },
+  'Giovanna':      { color:'#9A4C6B', bg:'#F2D9E3' },
+  'Mentalize':     { color:'#9A7A2E', bg:'#F2EAD4' },
+  'Mentoria Maré': { color:'#1C5C5C', bg:'#D4EAEA' },
+  'Pessoal':       { color:'#6B3A2E', bg:'#EADAD4' },
+};
+const CLIENTES_ATIVOS = ['Engemont','Vasart','YWG','Bruna','Giovanna','Mentalize'];
+function tagChip(tag) {
+  const info = TAG_INFO[tag] || { color:'#7A6A50', bg:'var(--bg)' };
+  return `<span class="tag-chip-sm" style="background:${info.bg};color:${info.color}">${tag}</span>`;
 }
 
-function isFuture(d) {
-  if (!d) return false;
-  const x = new Date(d); x.setHours(0,0,0,0);
-  return x.getTime() >= TODAY.getTime();
-}
-
-function fmtDate(d) {
-  if (!d) return '';
-  return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'});
-}
-
-function fmtDateShort(d) {
-  if (!d) return '';
-  return d.toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit', month:'short'});
-}
-
-function initials(name) {
-  return (name||'?').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-}
-
-// ── TAGS ──
-function statusTag(s) {
-  const v = (s||'').toLowerCase();
-  if (v.includes('feito') || v.includes('conclu')) return `<span class="status-tag s-feito">✓ Feito</span>`;
-  if (v.includes('andamento')) return `<span class="status-tag s-andamento">◉ Em andamento</span>`;
-  return `<span class="status-tag s-pendente">○ Pendente</span>`;
-}
-
-function catTag(cat) {
-  const v = (cat||'').toLowerCase();
-  if (v.includes('mentor')) return `<span class="cat-tag cat-mentoria">Mentoria</span>`;
-  if (v.includes('conte')) return `<span class="cat-tag cat-conteudo">Conteúdo</span>`;
-  if (v.includes('pessoal')) return `<span class="cat-tag cat-pessoal">Pessoal</span>`;
-  if (v.includes('admin')) return `<span class="cat-tag cat-admin">Admin</span>`;
-  return `<span class="cat-tag cat-admin">${cat}</span>`;
-}
-
-function prioTag(p) {
-  const v = (p||'').toLowerCase();
-  if (v.includes('alta')) return `<span class="prio-alta">🔴 Alta</span>`;
-  return '';
-}
-
-function pgtoTag(v) {
-  const s = (v||'').toLowerCase();
-  if (s.includes('pago') || s.includes('ok')) return `<span class="pgto-ok">✓ Pago</span>`;
-  if (s.includes('atraso') || s.includes('vencid')) return `<span class="pgto-atr">⚠ Atrasado</span>`;
-  return `<span class="pgto-pend">○ Pendente</span>`;
-}
-
-// ── TASK CARD HTML ──
-function taskCardHTML(t) {
-  const done = (t.status||'').toLowerCase().includes('feito') || (t.status||'').toLowerCase().includes('conclu');
-  const d = t.data ? parseDate(t.data) : null;
-  const dateStr = d ? fmtDateShort(d) : '';
-  return `
-    <div class="task-card${done ? ' done' : ''}" id="tc-${t._id}">
-      <div class="task-body">
-        <div class="task-meta">
-          ${catTag(t.categoria)}
-          ${statusTag(t.status)}
-          ${prioTag(t.prioridade)}
-        </div>
-        <div class="task-title">${t.titulo || '—'}</div>
-        ${t.detalhes ? `<div class="task-details">${t.detalhes}</div>` : ''}
-        <div class="task-footer">
-          ${dateStr ? `<div class="task-footer-item">📅 ${dateStr}</div>` : ''}
-          ${t.hora ? `<div class="task-footer-item">🕐 ${t.hora}</div>` : ''}
-          ${t.tempo_estimado ? `<div class="task-footer-item">⏱ ${t.tempo_estimado}</div>` : ''}
-          ${t.vinculado_a ? `<div class="task-footer-item">🔗 ${t.vinculado_a}</div>` : ''}
-        </div>
-      </div>
-    </div>`;
-}
-
-// ── EVENTO CARD HTML ──
-function eventoCardHTML(ev) {
-  return `
-    <div class="evento-card">
-      <div class="evento-time">
-        <div class="hora">${ev.hora || '—'}</div>
-        ${ev.duracao ? `<div class="dur">${ev.duracao}</div>` : ''}
-      </div>
-      <div class="evento-divider"></div>
-      <div class="evento-info">
-        <div class="evento-title">${ev.evento || '—'}</div>
-        <div class="evento-sub">
-          ${catTag(ev.categoria)}
-          ${ev.local_link ? ` · <a href="${ev.local_link}" target="_blank" style="color:var(--accent);font-size:11px;">↗ Link</a>` : ''}
-          ${ev.notas ? ` · ${ev.notas}` : ''}
-        </div>
-      </div>
-    </div>`;
-}
-
-// ── CHECKLIST DO DIA (08/06) ──
-const CHECKLIST_DATA = [
-  { id: 'c1',  emoji: '💬', titulo: 'Cobrar pagamento da Bruna', sub: 'pelo WhatsApp', tags: ['Mentoria Maré', 'Clínica Bruna'] },
-  { id: 'c2',  emoji: '🔑', titulo: 'Solicitar acessos aos marketplaces', tags: ['YWG'] },
-  { id: 'c3',  emoji: '🌐', titulo: 'Solicitar cadastro de DNS', tags: ['YWG'] },
-  { id: 'c4',  emoji: '👤', titulo: 'Criar usuário da Marcia', tags: ['Vasart'] },
-  { id: 'c5',  emoji: '📧', titulo: 'Criar e-mail de marketing', tags: ['Vasart'] },
-  { id: 'c6',  emoji: '🛠️', titulo: 'Construir os portais', tags: ['Maré'] },
-  { id: 'c7',  emoji: '🎥', titulo: 'Gravar vídeo de cultura', tags: ['Vasart'] },
-  { id: 'c8',  emoji: '🗂️', titulo: 'Organizar portal', tags: ['Mentoria Maré', 'Bruna', 'Giovanna'] },
-  { id: 'c9',  emoji: '📤', titulo: 'Enviar portal', tags: ['Mentoria Maré', 'Mentalize'] },
-  { id: 'c10', emoji: '💰', titulo: 'Cobrar saldo do Google', tags: ['Engemont'] },
-  { id: 'c11', emoji: '📦', titulo: 'Cobrar materiais de junho', tags: ['Engemont'] },
-  { id: 'c12', emoji: '🏋️', titulo: 'Treino: superiores', hora: '06:30h', tags: ['Laís', 'Atividade física'] },
-  { id: 'c13', emoji: '🐾', titulo: 'Passeio', hora: '18:30h', tags: ['Cookie e Louie'] },
+// ── TAREFAS · modelo único (atualizado por mim sempre que você me passa as tarefas do dia) ──
+const TASKS_DATA = [
+  { id:'t1',  data:'2026-06-08', hora:null,    emoji:'💬',  titulo:'Cobrar pagamento da Bruna', sub:'pelo WhatsApp', tag:'Bruna',         status:'pendente' },
+  { id:'t2',  data:'2026-06-08', hora:null,    emoji:'🔑',  titulo:'Solicitar acessos aos marketplaces',            tag:'YWG',           status:'pendente' },
+  { id:'t3',  data:'2026-06-08', hora:null,    emoji:'🌐',  titulo:'Solicitar cadastro de DNS',                     tag:'YWG',           status:'pendente' },
+  { id:'t4',  data:'2026-06-08', hora:null,    emoji:'👤',  titulo:'Criar usuário da Marcia',                       tag:'Vasart',        status:'pendente' },
+  { id:'t5',  data:'2026-06-08', hora:null,    emoji:'📧',  titulo:'Criar e-mail de marketing',                     tag:'Vasart',        status:'pendente' },
+  { id:'t6',  data:'2026-06-08', hora:null,    emoji:'🛠️', titulo:'Construir os portais',                          tag:'Mentoria Maré', status:'pendente' },
+  { id:'t7',  data:'2026-06-08', hora:null,    emoji:'🎥',  titulo:'Gravar vídeo de cultura',                       tag:'Vasart',        status:'pendente' },
+  { id:'t8',  data:'2026-06-08', hora:null,    emoji:'🗂️', titulo:'Organizar portal',                              tag:'Mentoria Maré', status:'pendente' },
+  { id:'t9',  data:'2026-06-08', hora:null,    emoji:'📤',  titulo:'Enviar portal',                                 tag:'Mentalize',     status:'pendente' },
+  { id:'t10', data:'2026-06-08', hora:null,    emoji:'💰',  titulo:'Cobrar saldo do Google',                        tag:'Engemont',      status:'pendente' },
+  { id:'t11', data:'2026-06-08', hora:null,    emoji:'📦',  titulo:'Cobrar materiais de junho',                     tag:'Engemont',      status:'pendente' },
+  { id:'t12', data:'2026-06-08', hora:'06:30', emoji:'🏋️', titulo:'Treino: superiores',                            tag:'Pessoal',       status:'pendente' },
+  { id:'t13', data:'2026-06-08', hora:'18:30', emoji:'🐾',  titulo:'Passeio com Cookie e Louie',                    tag:'Pessoal',       status:'pendente' },
 ];
-const CHECKLIST_KEY = 'mare-checklist-2026-06-08';
 
-function getChecklistState() {
-  try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY)) || {}; }
-  catch { return {}; }
+// ── ESTADO concluído/pendente — salvo no navegador ──
+const DONE_KEY = 'mare-tasks-done';
+function getDoneState() {
+  try { return JSON.parse(localStorage.getItem(DONE_KEY)) || {}; } catch { return {}; }
 }
-function saveChecklistState(state) {
-  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+function saveDoneState(s) { localStorage.setItem(DONE_KEY, JSON.stringify(s)); }
+
+// ── SINCRONIA COM GESTÃO DE CONTEÚDOS (mesma origem → mesmo localStorage) ──
+const PROD_STEPS = {
+  criacao: { emoji:'🎬', label:'Gravar conteúdo' },
+  edicao:  { emoji:'✂️', label:'Editar conteúdo' },
+  capa:    { emoji:'🖼️', label:'Criar capa de' },
+  legenda: { emoji:'📝', label:'Escrever legenda de' },
+};
+function getContentItems() {
+  try { return JSON.parse(localStorage.getItem('mare-content') || '[]'); } catch { return []; }
 }
-function renderChecklist() {
-  const state = getChecklistState();
-  const list = document.getElementById('checklist-list');
-  if (!list) return;
-  list.innerHTML = CHECKLIST_DATA.map(item => {
-    const done = !!state[item.id];
-    return `
+function getContentTasks() {
+  const out = [];
+  getContentItems().forEach(item => {
+    Object.keys(PROD_STEPS).forEach(k => {
+      const d = item.checklistDatas && item.checklistDatas[k];
+      if (!d) return;
+      out.push({
+        id: `content-${item.id}-${k}`, data: d, hora: null,
+        emoji: PROD_STEPS[k].emoji, titulo: `${PROD_STEPS[k].label}: ${item.nome}`,
+        sub: 'Gestão de Conteúdos', tag: 'Mentoria Maré',
+        status: (item.checklist && item.checklist[k]) ? 'feito' : 'pendente',
+        source: 'conteudo',
+      });
+    });
+    if (item.data) {
+      out.push({
+        id: `content-${item.id}-postagem`, data: item.data, hora: null,
+        emoji: '🚀', titulo: `Publicar: ${item.nome}`,
+        sub: 'Gestão de Conteúdos', tag: 'Mentoria Maré',
+        status: item.status === 'postado' ? 'feito' : 'pendente',
+        source: 'conteudo',
+      });
+    }
+  });
+  return out;
+}
+function toggleTaskDone(taskId, checked) {
+  if (taskId.startsWith('content-')) {
+    const items = getContentItems();
+    const m = taskId.match(/^content-(.+)-(criacao|edicao|capa|legenda|postagem)$/);
+    if (!m) return;
+    const item = items.find(i => i.id === m[1]);
+    if (!item) return;
+    if (m[2] === 'postagem') {
+      item.status = checked ? 'postado' : (item.status === 'postado' ? 'aprovado' : item.status);
+    } else {
+      item.checklist = item.checklist || {};
+      item.checklist[m[2]] = checked;
+    }
+    localStorage.setItem('mare-content', JSON.stringify(items));
+  } else {
+    const st = getDoneState();
+    st[taskId] = checked;
+    saveDoneState(st);
+  }
+}
+function getAllTasks() {
+  const doneState = getDoneState();
+  const manual = TASKS_DATA.map(t => ({ ...t, status: (t.id in doneState) ? (doneState[t.id] ? 'feito' : 'pendente') : t.status }));
+  return [...manual, ...getContentTasks()];
+}
+
+// ── ESTADO de filtros / navegação ──
+let activeTagFilter = null;
+let agendaWeekOffset = 0;
+let openClientTag = null;
+
+function refreshAll() {
+  renderHoje(); renderTarefas(); renderAgenda(); renderClientes();
+}
+
+// ── RENDER: HOJE ──
+function renderHoje() {
+  const hoje = getAllTasks().filter(t => t.data === TODAY_STR);
+
+  const h = new Date().getHours();
+  document.getElementById('hero-greeting').textContent = h < 12 ? 'Bom dia,' : h < 18 ? 'Boa tarde,' : 'Boa noite,';
+  document.getElementById('hero-name').textContent = 'Laís Valentini ✦';
+  document.getElementById('hero-date').textContent = TODAY.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  // Contadores do topo
+  const clientesComTarefa = new Set(hoje.filter(t => CLIENTES_ATIVOS.includes(t.tag)).map(t => t.tag));
+  const pessoais = hoje.filter(t => !CLIENTES_ATIVOS.includes(t.tag));
+  const pendentes = hoje.filter(t => t.status !== 'feito');
+  const feitas = hoje.filter(t => t.status === 'feito');
+  const stats = [
+    { num: clientesComTarefa.size, lbl: 'Clientes com tarefa' },
+    { num: pessoais.length,        lbl: 'Tarefas pessoais' },
+    { num: hoje.length,            lbl: 'Total hoje' },
+    { num: pendentes.length,       lbl: 'Pendentes' },
+    { num: feitas.length,          lbl: 'Realizadas' },
+  ];
+  document.getElementById('stat-bar').innerHTML = stats.map(s =>
+    `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`
+  ).join('');
+
+  // Filtro de tags coloridas (só as que aparecem hoje)
+  const tagsHoje = [...new Set(hoje.map(t => t.tag))];
+  if (activeTagFilter && !tagsHoje.includes(activeTagFilter)) activeTagFilter = null;
+  const filtersEl = document.getElementById('tag-filters');
+  filtersEl.innerHTML = tagsHoje.map(tag => {
+    const info = TAG_INFO[tag] || { color:'#7A6A50', bg:'var(--bg)' };
+    const active = activeTagFilter === tag;
+    return `<button class="tag-chip${active ? ' active' : ''}" data-tag="${tag}"
+      style="color:${info.color};background:${active ? info.bg : 'var(--white)'};border-color:${active ? info.color : 'var(--border)'}">
+      <span class="dot"></span>${tag}</button>`;
+  }).join('');
+  filtersEl.querySelectorAll('.tag-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTagFilter = (activeTagFilter === btn.dataset.tag) ? null : btn.dataset.tag;
+      renderHoje();
+    });
+  });
+
+  // Lista — com horário em ordem primeiro, sem horário no final
+  let list = hoje;
+  if (activeTagFilter) list = list.filter(t => t.tag === activeTagFilter);
+  const comHora = list.filter(t => t.hora).sort((a,b) => a.hora.localeCompare(b.hora));
+  const semHora = list.filter(t => !t.hora);
+  const ordered = [...comHora, ...semHora];
+
+  document.getElementById('hoje-list-title').textContent = activeTagFilter
+    ? `✦ Tarefas de hoje · ${activeTagFilter}`
+    : '✦ Tarefas de hoje';
+
+  const listEl = document.getElementById('checklist-list');
+  if (!ordered.length) {
+    listEl.innerHTML = `<div class="hoje-empty"><div class="icon">🌊</div>Nenhuma tarefa por aqui ainda.<br><span style="font-size:12px;color:#aaa;margin-top:8px;display:block">Me envie suas tarefas e eu organizo aqui!</span></div>`;
+  } else {
+    listEl.innerHTML = ordered.map(item => {
+      const done = item.status === 'feito';
+      return `
       <div class="check-item ${done ? 'done' : ''}" data-id="${item.id}">
         <label class="check-box">
           <input type="checkbox" ${done ? 'checked' : ''}>
@@ -637,260 +765,126 @@ function renderChecklist() {
             ${item.hora ? `<span class="check-time">🕐 ${item.hora}</span>` : ''}
             ${item.emoji} ${item.titulo}${item.sub ? ` <span style="color:var(--muted);font-weight:400">(${item.sub})</span>` : ''}
           </div>
-          <div class="check-tags">${item.tags.map(t => `<span class="chk-tag">${t}</span>`).join('')}</div>
+          <div class="check-tags">${tagChip(item.tag)}</div>
         </div>
       </div>`;
-  }).join('');
-
-  list.querySelectorAll('.check-box input').forEach(input => {
-    input.addEventListener('change', () => {
-      const itemEl = input.closest('.check-item');
-      const id = itemEl.dataset.id;
-      const st = getChecklistState();
-      st[id] = input.checked;
-      saveChecklistState(st);
-      itemEl.classList.toggle('done', input.checked);
-      updateChecklistProgress();
-    });
-  });
-  updateChecklistProgress();
-}
-function updateChecklistProgress() {
-  const state = getChecklistState();
-  const total = CHECKLIST_DATA.length;
-  const done = CHECKLIST_DATA.filter(i => state[i.id]).length;
-  const fill = document.getElementById('cp-fill');
-  const label = document.getElementById('cp-label');
-  if (fill) fill.style.width = `${total ? Math.round((done / total) * 100) : 0}%`;
-  if (label) label.textContent = `${done} de ${total} feitas`;
-}
-
-// ── DATA ──
-const D = { config: {}, tarefas: [], agenda: [], clientes: [] };
-
-// ── RENDER HOJE ──
-function renderHoje() {
-  // Greeting
-  const h = new Date().getHours();
-  const greet = h < 12 ? 'Bom dia,' : h < 18 ? 'Boa tarde,' : 'Boa noite,';
-  document.getElementById('hero-greeting').textContent = greet;
-  document.getElementById('hero-name').textContent = (D.config.nome || 'Laís Valentini') + ' ✦';
-  document.getElementById('hero-date').textContent = TODAY.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-
-  // Stats
-  const hojeT = D.tarefas.filter(t => t.data && isToday(parseDate(t.data)));
-  const pendentes = D.tarefas.filter(t => {
-    const s = (t.status||'').toLowerCase();
-    return !s.includes('feito') && !s.includes('conclu');
-  });
-  const feitas = D.tarefas.filter(t => {
-    const s = (t.status||'').toLowerCase();
-    return s.includes('feito') || s.includes('conclu');
-  });
-  document.getElementById('stat-hoje').textContent = hojeT.length;
-  document.getElementById('stat-pend').textContent = pendentes.length;
-  document.getElementById('stat-feito').textContent = feitas.length;
-  document.getElementById('stat-clientes').textContent = D.clientes.length;
-
-  // Badge contagem pendentes
-  if (pendentes.length > 0) {
-    const b = document.getElementById('badge-tarefas');
-    b.textContent = pendentes.length; b.style.display = 'inline-flex';
-  }
-
-  // Cat badges no hero
-  const cats = ['Mentoria','Conteúdo','Pessoal','Admin'];
-  const catCounts = {};
-  cats.forEach(c => {
-    catCounts[c] = pendentes.filter(t => (t.categoria||'').toLowerCase().includes(c.toLowerCase().replace('ú','u').replace('é','e').replace('ó','o').replace('ã','a').replace('á','a'))).length;
-  });
-  const badgesEl = document.getElementById('cat-badges');
-  badgesEl.innerHTML = cats.map(c => {
-    const cnt = pendentes.filter(t => (t.categoria||'').toLowerCase().includes(c.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''))).length;
-    if (!cnt) return '';
-    return `<div class="cat-badge-mini cat-${c.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace('u','u')}">${c}: <strong>${cnt}</strong></div>`;
-  }).join('');
-
-  // Eventos de hoje
-  const hojeEv = D.agenda.filter(ev => ev.data && isToday(parseDate(ev.data)));
-  const agendaWrap = document.getElementById('hoje-agenda-wrap');
-  if (hojeEv.length) {
-    agendaWrap.innerHTML = `<div class="section-title">✦ Agenda de hoje</div>` +
-      hojeEv.sort((a,b) => (a.hora||'').localeCompare(b.hora||'')).map(eventoCardHTML).join('');
-    agendaWrap.style.marginBottom = '28px';
-  }
-
-  // Tarefas de hoje
-  const tarefasWrap = document.getElementById('hoje-tarefas-wrap');
-  if (!hojeT.length && !hojeEv.length) {
-    tarefasWrap.innerHTML = `
-      <div class="hoje-empty">
-        <div class="icon">🌊</div>
-        Nenhuma tarefa ou compromisso para hoje.<br>
-        <span style="font-size:12px;color:#aaa;margin-top:8px;display:block">Me envie suas tarefas e eu organizo aqui!</span>
-      </div>`;
-    return;
-  }
-
-  if (hojeT.length) {
-    tarefasWrap.innerHTML = `<div class="section-title">✦ Tarefas de hoje</div>` +
-      hojeT.sort((a,b) => (a.hora||'99').localeCompare(b.hora||'99')).map(taskCardHTML).join('');
-  }
-}
-
-// ── RENDER TAREFAS ──
-let activeFilters = new Set(['todos']);
-function renderTarefas(filter='todos') {
-  let list = D.tarefas;
-  if (filter !== 'todos') {
-    const catFilters = ['mentoria','conteudo','pessoal','admin'];
-    if (catFilters.includes(filter)) {
-      list = list.filter(t => (t.categoria||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(filter));
-    } else {
-      // status filter
-      list = list.filter(t => {
-        const s = (t.status||'').toLowerCase();
-        if (filter === 'feito') return s.includes('feito') || s.includes('conclu');
-        if (filter === 'andamento') return s.includes('andamento');
-        if (filter === 'pendente') return !s.includes('feito') && !s.includes('conclu') && !s.includes('andamento');
-        return true;
+    }).join('');
+    listEl.querySelectorAll('.check-box input').forEach(input => {
+      input.addEventListener('change', () => {
+        toggleTaskDone(input.closest('.check-item').dataset.id, input.checked);
+        refreshAll();
       });
-    }
-  }
-
-  // Sort: pendentes com data primeiro, depois por data, depois sem data
-  list.sort((a,b) => {
-    const da = a.data ? parseDate(a.data) : null;
-    const db = b.data ? parseDate(b.data) : null;
-    if (da && db) return da - db;
-    if (da) return -1;
-    if (db) return 1;
-    return 0;
-  });
-
-  const wrap = document.getElementById('tarefas-list');
-  if (!list.length) {
-    wrap.innerHTML = `<div class="empty-state"><div class="icon">✅</div>Nenhuma tarefa encontrada.</div>`;
-    return;
-  }
-
-  // Group by date
-  const groups = new Map();
-  list.forEach(t => {
-    const d = t.data ? parseDate(t.data) : null;
-    let key = d ? d.toISOString().split('T')[0] : '_sem_data';
-    if (!groups.has(key)) groups.set(key, { date: d, tasks: [] });
-    groups.get(key).tasks.push(t);
-  });
-
-  let html = '';
-  groups.forEach(({ date, tasks }, key) => {
-    let label;
-    if (key === '_sem_data') { label = 'Sem data'; }
-    else {
-      const x = new Date(date); x.setHours(0,0,0,0);
-      const todayMs = TODAY.getTime();
-      if (x.getTime() === todayMs) label = '📅 Hoje · ' + fmtDate(date);
-      else if (x.getTime() === todayMs + 86400000) label = 'Amanhã · ' + fmtDate(date);
-      else label = fmtDate(date);
-    }
-    html += `<div class="date-sep">${label}</div>`;
-    html += tasks.map(taskCardHTML).join('');
-  });
-  wrap.innerHTML = html;
-}
-
-// ── RENDER AGENDA ──
-function renderAgenda() {
-  const wrap = document.getElementById('agenda-list');
-  const futuros = D.agenda.filter(ev => ev.data && isFuture(parseDate(ev.data)));
-  futuros.sort((a,b) => {
-    const da = parseDate(a.data), db = parseDate(b.data);
-    if (da - db !== 0) return da - db;
-    return (a.hora||'').localeCompare(b.hora||'');
-  });
-
-  if (!futuros.length) {
-    wrap.innerHTML = `<div class="empty-state"><div class="icon">📅</div>Nenhum evento próximo.<br><span style="font-size:12px;color:#aaa">Adicione eventos na aba <strong>agenda</strong> da planilha.</span></div>`;
-    return;
-  }
-
-  // Group by month
-  const months = new Map();
-  futuros.forEach(ev => {
-    const d = parseDate(ev.data);
-    const mkey = `${d.getFullYear()}-${String(d.getMonth()).padStart(2,'0')}`;
-    if (!months.has(mkey)) months.set(mkey, { label: d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}), days: new Map() });
-    const dkey = d.toISOString().split('T')[0];
-    const m = months.get(mkey);
-    if (!m.days.has(dkey)) m.days.set(dkey, { date: d, events: [] });
-    m.days.get(dkey).events.push(ev);
-  });
-
-  let html = '';
-  months.forEach(({ label, days }) => {
-    html += `<div class="month-sep">✦ ${label.charAt(0).toUpperCase() + label.slice(1)}</div>`;
-    days.forEach(({ date, events }) => {
-      const x = new Date(date); x.setHours(0,0,0,0);
-      const isHoje = x.getTime() === TODAY.getTime();
-      const wday = date.toLocaleDateString('pt-BR',{weekday:'long'});
-      html += `
-        <div class="agenda-day-block">
-          <div class="agenda-day-header">
-            <div class="agenda-day-num">${date.getDate()}</div>
-            <div class="agenda-day-label${isHoje?' hoje-label':''}">${wday}${isHoje?' · hoje':''}</div>
-          </div>
-          ${events.map(eventoCardHTML).join('')}
-        </div>`;
     });
-  });
-  wrap.innerHTML = html;
+  }
+
+  const total = hoje.length, done = hoje.filter(i => i.status === 'feito').length;
+  document.getElementById('cp-fill').style.width = `${total ? Math.round((done/total)*100) : 0}%`;
+  document.getElementById('cp-label').textContent = `${done} de ${total} feitas`;
+
+  const badge = document.getElementById('badge-tarefas');
+  if (pendentes.length > 0) { badge.textContent = pendentes.length; badge.style.display = 'inline-flex'; }
+  else badge.style.display = 'none';
 }
 
-// ── RENDER CLIENTES ──
-function renderClientes() {
-  const grid = document.getElementById('clientes-grid');
-  if (!D.clientes.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">👥</div>Nenhum cliente cadastrado.<br><span style="font-size:12px;color:#aaa">Preencha a aba <strong>clientes</strong> na planilha.</span></div>`;
+// ── RENDER: TAREFAS (tabela completa, mais recente no topo) ──
+function renderTarefas() {
+  const sorted = [...getAllTasks()].sort((a,b) => {
+    const da = a.data || '0000-00-00', db = b.data || '0000-00-00';
+    if (da !== db) return db.localeCompare(da);
+    return (b.hora || '').localeCompare(a.hora || '');
+  });
+  const tbody = document.getElementById('tarefas-table-body');
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:48px;color:#ccc">Nenhuma tarefa cadastrada ainda.</td></tr>`;
     return;
   }
-  grid.innerHTML = D.clientes.map(c => {
-    const meses = parseInt(c.meses_contratados) || 0;
-    const atual = parseInt(c.mes_atual) || 0;
-    const pct = meses ? Math.round(atual/meses*100) : 0;
-    const wa = c.whatsapp ? c.whatsapp.replace(/\D/g,'') : '';
-    return `
-      <div class="cliente-card">
-        <div class="cliente-avatar">${initials(c.nome)}</div>
-        <div class="cliente-name">${c.nome || '—'}</div>
-        <div class="cliente-prog-label">Mês ${atual} de ${meses} · ${pct}% da mentoria</div>
-        <div class="cliente-bar-wrap"><div class="cliente-bar" style="width:${pct}%"></div></div>
-        <div class="cliente-meta">
-          <div class="cliente-meta-row">
-            <span class="cliente-meta-key">Próxima sessão</span>
-            <span>${c.proxima_sessao || '—'}</span>
-          </div>
-          <div class="cliente-meta-row">
-            <span class="cliente-meta-key">Pagamento</span>
-            <span>${pgtoTag(c.status_pagamento)}</span>
-          </div>
-        </div>
-        ${c.notas ? `<div class="cliente-notas">${c.notas}</div>` : ''}
-        ${wa ? `<a class="cliente-whatsapp" href="https://wa.me/55${wa}" target="_blank">💬 WhatsApp</a>` : ''}
-      </div>`;
+  tbody.innerHTML = sorted.map(t => {
+    const done = t.status === 'feito';
+    return `<tr class="${done ? 'feito' : ''}">
+      <td>${fmtDateFull(t.data)}</td>
+      <td>${t.hora || '—'}</td>
+      <td class="tt-titulo">${t.emoji ? t.emoji + ' ' : ''}${t.titulo}</td>
+      <td>${tagChip(t.tag)}</td>
+      <td><span class="tt-status ${done ? 'feito' : 'pendente'}">${done ? '✓ Feito' : '○ Pendente'}</span></td>
+    </tr>`;
   }).join('');
 }
 
-// ── FILTERS ──
-document.getElementById('tarefas-filters').addEventListener('click', e => {
-  const btn = e.target.closest('.filter-btn');
-  if (!btn) return;
-  document.querySelectorAll('#tarefas-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTarefas(btn.dataset.filter);
-});
+// ── RENDER: AGENDA (semanal) ──
+function getWeekDates(offset) {
+  const day = TODAY.getDay();
+  const diffToMonday = (day === 0 ? -6 : 1 - day);
+  const monday = new Date(TODAY);
+  monday.setDate(TODAY.getDate() + diffToMonday + offset*7);
+  return Array.from({length:7}, (_,i) => { const d = new Date(monday); d.setDate(monday.getDate()+i); return d; });
+}
+function renderAgenda() {
+  const ALL = getAllTasks();
+  const week = getWeekDates(agendaWeekOffset);
+  const dayNames = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
+  const first = week[0], last = week[6];
+  const lbl = d => d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'}).replace('.','');
+  document.getElementById('week-label').textContent =
+    (agendaWeekOffset === 0 ? 'Esta semana · ' : '') + `${lbl(first)} – ${lbl(last)}`;
 
-// ── NAV ──
+  document.getElementById('week-grid').innerHTML = week.map((d, i) => {
+    const ds = dateStr(d);
+    const isToday = ds === TODAY_STR;
+    const dayTasks = ALL.filter(t => t.data === ds);
+    const comHora = dayTasks.filter(t => t.hora).sort((a,b) => a.hora.localeCompare(b.hora));
+    const semHora = dayTasks.filter(t => !t.hora);
+    const ordered = [...comHora, ...semHora];
+    return `<div class="week-col${isToday ? ' is-today' : ''}">
+      <div class="week-col-head">
+        <div class="week-col-day">${dayNames[i]}</div>
+        <div class="week-col-num">${d.getDate()}</div>
+      </div>
+      ${ordered.length ? ordered.map(t => `
+        <div class="week-task${t.status === 'feito' ? ' feito' : ''}" style="border-left-color:${(TAG_INFO[t.tag]||{}).color || 'var(--accent)'}">
+          ${t.hora ? `<span class="wt-time">${t.hora}</span>` : ''}${t.emoji} ${t.titulo}
+        </div>`).join('') : `<div class="week-empty">—</div>`}
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER: CLIENTES (accordion) ──
+function renderClientes() {
+  const ALL = getAllTasks();
+  const allTags = [...CLIENTES_ATIVOS, 'Mentoria Maré', 'Pessoal'];
+  const wrap = document.getElementById('clientes-acc');
+  wrap.innerHTML = allTags.map(tag => {
+    const tasks = ALL.filter(t => t.tag === tag).sort((a,b) => (b.data||'').localeCompare(a.data||''));
+    const info = TAG_INFO[tag];
+    const isOpen = openClientTag === tag;
+    const pendentes = tasks.filter(t => t.status !== 'feito').length;
+    return `<div class="acc-card${isOpen ? ' open' : ''}" data-tag="${tag}">
+      <div class="acc-header">
+        <span class="acc-dot" style="background:${info.color}"></span>
+        <span class="acc-name">${tag}</span>
+        <span class="acc-count">${tasks.length} tarefa${tasks.length !== 1 ? 's' : ''}${pendentes ? ` · ${pendentes} pendente${pendentes !== 1 ? 's' : ''}` : ''}</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body">
+        ${tasks.length ? tasks.map(t => `
+          <div class="acc-task${t.status === 'feito' ? ' feito' : ''}">
+            <span class="at-date">${fmtDateFull(t.data)}${t.hora ? ' · ' + t.hora : ''}</span>
+            <span class="at-title">${t.emoji} ${t.titulo}</span>
+            <span class="tt-status ${t.status === 'feito' ? 'feito' : 'pendente'}">${t.status === 'feito' ? '✓ Feito' : '○ Pendente'}</span>
+          </div>`).join('') : `<div class="week-empty">Nenhuma tarefa registrada ainda.</div>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.acc-header').forEach(hd => {
+    hd.addEventListener('click', () => {
+      const tag = hd.closest('.acc-card').dataset.tag;
+      openClientTag = (openClientTag === tag) ? null : tag;
+      renderClientes();
+    });
+  });
+}
+
+// ── NAV ENTRE ABAS ──
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -900,33 +894,14 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   });
 });
 
+// ── NAVEGAÇÃO DA AGENDA SEMANAL ──
+document.getElementById('week-prev').addEventListener('click', () => { agendaWeekOffset--; renderAgenda(); });
+document.getElementById('week-next').addEventListener('click', () => { agendaWeekOffset++; renderAgenda(); });
+
 // ── BOOT ──
-async function boot() {
-  renderChecklist();
-  if (!SHEET_ID) {
-    document.getElementById('loading').classList.add('hide');
-    document.getElementById('hero-greeting').textContent = '';
-    document.getElementById('hero-name').textContent = 'Laís Valentini ✦';
-    document.getElementById('hero-date').textContent = '⚠ Adicione ?sheet=ID_DA_PLANILHA na URL para carregar dados';
-    return;
-  }
-  try {
-    const [configRows, tarefaRows, agendaRows, clienteRows] = await Promise.all([
-      fetchCSV('config'), fetchCSV('tarefas'), fetchCSV('agenda'), fetchCSV('clientes')
-    ]);
-    if (configRows.length) D.config = configRows[0];
-    D.tarefas = tarefaRows.filter(r => r.titulo).map((r,i) => ({ ...r, _id: i }));
-    D.agenda  = agendaRows.filter(r => r.evento);
-    D.clientes = clienteRows.filter(r => r.nome);
-    document.getElementById('last-update').textContent = 'Atualizado em ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    renderHoje();
-    renderTarefas('todos');
-    renderAgenda();
-    renderClientes();
-  } catch(e) {
-    document.getElementById('hero-date').textContent = '⚠ Erro ao carregar dados. Verifique se a planilha está pública (Qualquer pessoa com o link pode visualizar).';
-    console.error(e);
-  }
+function boot() {
+  document.getElementById('last-update').textContent = 'Atualizado em ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  refreshAll();
   setTimeout(() => document.getElementById('loading').classList.add('hide'), 200);
 }
 
