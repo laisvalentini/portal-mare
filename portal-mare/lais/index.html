@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>maré · Painel da Laís</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231C1C1C'/><text y='24' x='3' font-size='20' fill='%23C9B99A' font-family='serif' font-weight='bold'>m</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0EDE7;
+    --dark: #1C1C1C;
+    --accent: #C9B99A;
+    --white: #FFFFFF;
+    --text: #1A1818;
+    --muted: #888;
+    --border: #E2DDD6;
+    --cat-mentoria-bg: #D4E8EA; --cat-mentoria: #1E5F6B;
+    --cat-conteudo-bg: #EAD9C8; --cat-conteudo: #7A5230;
+    --cat-pessoal-bg:  #D4EAD4; --cat-pessoal:  #2E6B2E;
+    --cat-admin-bg:    #E8D4EA; --cat-admin:    #6B2E6B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-top: 56px; }
+
+  /* ── LOADING ── */
+  .loading-screen {
+    position: fixed; inset: 0; background: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px; z-index: 1000;
+    transition: opacity 0.4s;
+  }
+  .loading-screen.hide { opacity: 0; pointer-events: none; }
+  .loading-logo {
+    font-size: 48px; font-weight: 900; color: var(--white); letter-spacing: -2px;
+    position: relative; display: inline-block;
+  }
+  .loading-logo::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 4px;
+    background: var(--accent); border-radius: 2px;
+  }
+  .loading-sub { font-size: 11px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+  .loading-bar { width: 180px; height: 3px; background: #333; border-radius: 2px; overflow: hidden; margin-top: 12px; }
+  .loading-fill { height: 100%; background: var(--accent); width: 0%; animation: ld 1.4s ease forwards; }
+  @keyframes ld { to { width: 100%; } }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--dark); height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo { font-size: 22px; font-weight: 900; color: var(--white); letter-spacing: -1px; }
+  .topbar-logo span { color: var(--accent); }
+  .topbar-sep { color: var(--accent); opacity: 0.4; }
+  .topbar-label { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+  .topbar-right { font-size: 11px; color: #555; }
+
+  /* ── NAV ── */
+  .nav {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    display: flex; gap: 0; padding: 0 32px;
+    position: sticky; top: 56px; z-index: 99;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .nav-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 0 20px; height: 48px;
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    transition: all 0.2s; letter-spacing: 0.3px; white-space: nowrap;
+  }
+  .nav-btn:hover { color: var(--dark); }
+  .nav-btn.active { color: var(--dark); border-bottom-color: var(--accent); }
+  .nav-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--accent); color: var(--dark);
+    font-size: 9px; font-weight: 800; min-width: 16px; height: 16px;
+    border-radius: 8px; padding: 0 4px; margin-left: 6px; vertical-align: middle;
+  }
+
+  /* ── MAIN ── */
+  .main { padding: 32px; max-width: 1100px; margin: 0 auto; }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
+  }
+
+  /* ── HERO ── */
+  .hero-card {
+    background: var(--dark); border-radius: 16px; padding: 32px;
+    margin-bottom: 28px;
+  }
+  .hero-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .hero-greeting { font-size: 13px; color: #666; font-weight: 500; margin-bottom: 6px; }
+  .hero-name { font-size: 26px; font-weight: 900; color: var(--white); line-height: 1.1; }
+  .hero-date { font-size: 12px; color: #555; margin-top: 6px; }
+  .hero-stats { display: flex; gap: 28px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #2a2a2a; }
+  .hero-stat .num { font-size: 32px; font-weight: 900; color: var(--accent); line-height: 1; }
+  .hero-stat .lbl { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .hero-right-badges { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .cat-badge-mini {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
+  }
+
+  /* ── HOJE: Hoje tasks ── */
+  .hoje-section { margin-bottom: 28px; }
+  .hoje-empty {
+    background: var(--white); border-radius: 14px; padding: 48px;
+    text-align: center; color: var(--muted); font-size: 14px;
+    border: 1px solid var(--border);
+  }
+  .hoje-empty .icon { font-size: 32px; margin-bottom: 12px; }
+
+  /* ── TASK CARD ── */
+  .task-card {
+    background: var(--white); border-radius: 14px; padding: 20px 24px;
+    border: 1px solid var(--border); margin-bottom: 12px;
+    display: flex; gap: 16px; align-items: flex-start;
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .task-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .task-card.done { opacity: 0.5; }
+  .task-card.done .task-title { text-decoration: line-through; }
+  .task-check {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border);
+    flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .task-check:hover { border-color: var(--accent); }
+  .task-card.done .task-check { background: var(--accent); border-color: var(--accent); }
+  .task-check::after { content: ''; display: none; }
+  .task-card.done .task-check::after { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--dark); }
+  .task-body { flex: 1; min-width: 0; }
+  .task-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .task-title { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+  .task-details {
+    font-size: 12px; color: var(--muted); line-height: 1.6;
+    background: var(--bg); border-radius: 8px; padding: 10px 14px;
+    margin-top: 8px; white-space: pre-wrap;
+  }
+  .task-footer { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+  .task-footer-item { font-size: 11px; color: #999; display: flex; align-items: center; gap: 4px; }
+
+  /* ── AGENDA EVENT CARD ── */
+  .evento-card {
+    background: var(--white); border-radius: 14px; padding: 18px 24px;
+    border: 1px solid var(--border); margin-bottom: 10px;
+    display: flex; gap: 16px; align-items: center;
+  }
+  .evento-time {
+    text-align: center; min-width: 60px; flex-shrink: 0;
+  }
+  .evento-time .hora { font-size: 18px; font-weight: 800; color: var(--dark); }
+  .evento-time .dur { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .evento-divider { width: 2px; height: 40px; background: var(--border); flex-shrink: 0; border-radius: 2px; }
+  .evento-info { flex: 1; }
+  .evento-title { font-size: 13px; font-weight: 700; color: var(--dark); }
+  .evento-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  /* ── STATUS TAG ── */
+  .status-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
+    white-space: nowrap;
+  }
+  .s-pendente  { background: #F0EDE7; color: #888; }
+  .s-andamento { background: #FFF3CD; color: #8B6914; }
+  .s-feito     { background: #D4EAD4; color: #2E6B2E; }
+
+  /* ── CATEGORY TAG ── */
+  .cat-tag {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .cat-mentoria { background: var(--cat-mentoria-bg); color: var(--cat-mentoria); }
+  .cat-conteudo { background: var(--cat-conteudo-bg); color: var(--cat-conteudo); }
+  .cat-pessoal  { background: var(--cat-pessoal-bg);  color: var(--cat-pessoal); }
+  .cat-admin    { background: var(--cat-admin-bg);    color: var(--cat-admin); }
+
+  /* ── PRIORIDADE TAG ── */
+  .prio-alta   { background: #FFE4E4; color: #C0392B; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: inline-flex; }
+  .prio-normal { display: none; }
+
+  /* ── TAREFAS VIEW ── */
+  .tarefas-filters {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .filter-btn {
+    background: var(--white); border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 16px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--dark); }
+  .filter-btn.active { background: var(--dark); border-color: var(--dark); color: var(--white); }
+
+  /* ── DATE SEPARATOR ── */
+  .date-sep {
+    font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 2px;
+    text-transform: uppercase; padding: 16px 0 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .date-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── AGENDA VIEW ── */
+  .month-sep {
+    font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 2px;
+    text-transform: uppercase; padding: 20px 0 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .month-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .agenda-day-block { margin-bottom: 6px; }
+  .agenda-day-header {
+    display: flex; align-items: baseline; gap: 10px; padding: 12px 0 6px;
+  }
+  .agenda-day-num { font-size: 28px; font-weight: 900; color: var(--dark); line-height: 1; }
+  .agenda-day-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .agenda-day-label.hoje-label { color: var(--accent); }
+
+  /* ── CLIENTES VIEW ── */
+  .clientes-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;
+  }
+  .cliente-card {
+    background: var(--white); border-radius: 14px; padding: 24px;
+    border: 1px solid var(--border); transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .cliente-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .cliente-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--dark); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; margin-bottom: 16px;
+  }
+  .cliente-name { font-size: 16px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+  .cliente-prog-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .cliente-bar-wrap { background: var(--bg); border-radius: 4px; height: 6px; margin-bottom: 10px; overflow: hidden; }
+  .cliente-bar { height: 100%; border-radius: 4px; background: var(--accent); transition: width 0.6s ease; }
+  .cliente-meta { font-size: 11px; color: var(--muted); margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .cliente-meta-row { display: flex; justify-content: space-between; align-items: center; }
+  .cliente-meta-key { font-weight: 600; }
+  .pgto-ok  { background: #D4EAD4; color: #2E6B2E; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .pgto-pend { background: #FFE4E4; color: #C0392B; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .pgto-atr  { background: #FEEBC8; color: #8B5E00; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .cliente-notas {
+    font-size: 11px; color: #999; line-height: 1.5; margin-top: 10px;
+    padding-top: 10px; border-top: 1px solid var(--border);
+    font-style: italic;
+  }
+  .cliente-whatsapp {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+    background: #25D366; color: #fff; font-size: 11px; font-weight: 700;
+    padding: 6px 14px; border-radius: 20px; text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .cliente-whatsapp:hover { opacity: 0.85; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px;
+    background: var(--white); border-radius: 14px; border: 1px solid var(--border);
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 14px; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:700px){
+    .main { padding: 20px 16px; }
+    .topbar { padding: 0 16px; }
+    .nav { padding: 0 8px; overflow-x: auto; }
+    .hero-stats { gap: 16px; }
+    .clientes-grid { grid-template-columns: 1fr; }
+    .hero-right-badges { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loading">
+  <div class="loading-logo">maré</div>
+  <div class="loading-sub">Painel Pessoal</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <span class="topbar-logo">ma<span>ré</span></span>
+    <span class="topbar-sep">·</span>
+    <span class="topbar-label">Painel da Laís</span>
+  </div>
+  <div class="topbar-right" id="last-update">—</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" data-view="hoje">Hoje</button>
+  <button class="nav-btn" data-view="tarefas">Tarefas <span class="nav-badge" id="badge-tarefas" style="display:none">0</span></button>
+  <button class="nav-btn" data-view="agenda">Agenda</button>
+  <button class="nav-btn" data-view="clientes">Clientes</button>
+</nav>
+
+<div class="main">
+
+  <!-- ── HOJE ── -->
+  <div class="view active" id="view-hoje">
+    <div class="hero-card">
+      <div class="hero-top">
+        <div>
+          <div class="hero-greeting" id="hero-greeting">Bom dia</div>
+          <div class="hero-name" id="hero-name">Laís Valentini ✦</div>
+          <div class="hero-date" id="hero-date">—</div>
+        </div>
+        <div class="hero-right-badges" id="cat-badges"></div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num" id="stat-hoje">0</div><div class="lbl">Hoje</div></div>
+        <div class="hero-stat"><div class="num" id="stat-pend">0</div><div class="lbl">Pendentes</div></div>
+        <div class="hero-stat"><div class="num" id="stat-feito">0</div><div class="lbl">Feitas</div></div>
+        <div class="hero-stat"><div class="num" id="stat-clientes">0</div><div class="lbl">Clientes</div></div>
+      </div>
+    </div>
+
+    <div id="hoje-agenda-wrap"></div>
+    <div id="hoje-tarefas-wrap"></div>
+  </div>
+
+  <!-- ── TAREFAS ── -->
+  <div class="view" id="view-tarefas">
+    <div class="tarefas-filters" id="tarefas-filters">
+      <button class="filter-btn active" data-filter="todos">Todos</button>
+      <button class="filter-btn" data-filter="pendente">Pendente</button>
+      <button class="filter-btn" data-filter="andamento">Em andamento</button>
+      <button class="filter-btn" data-filter="feito">Feito</button>
+      <button class="filter-btn" data-filter="mentoria">Mentoria</button>
+      <button class="filter-btn" data-filter="conteudo">Conteúdo</button>
+      <button class="filter-btn" data-filter="pessoal">Pessoal</button>
+      <button class="filter-btn" data-filter="admin">Admin</button>
+    </div>
+    <div id="tarefas-list"></div>
+  </div>
+
+  <!-- ── AGENDA ── -->
+  <div class="view" id="view-agenda">
+    <div id="agenda-list"></div>
+  </div>
+
+  <!-- ── CLIENTES ── -->
+  <div class="view" id="view-clientes">
+    <div class="clientes-grid" id="clientes-grid"></div>
+  </div>
+
+</div>
+
+<script>
+const SHEET_ID = new URLSearchParams(location.search).get('sheet') || '';
+const TODAY = new Date();
+TODAY.setHours(0,0,0,0);
+
+// ── UTILS ──
+function parseCSV(text) {
+  const rows = []; let cur = ''; let inQ = false; let row = [];
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') { if (inQ && text[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+    else if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+    else if ((c === '\n' || c === '\r') && !inQ) {
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cur.trim()); rows.push(row); row = []; cur = '';
+    } else cur += c;
+  }
+  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.replace(/^"|"$/g,'').trim());
+  return rows.slice(1).filter(r => r.some(c => c)).map(r => {
+    const obj = {};
+    headers.forEach((h,i) => { obj[h] = (r[i]||'').replace(/^"|"$/g,'').trim(); });
+    return obj;
+  });
+}
+
+async function fetchCSV(tab) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+  const r = await fetch(url);
+  return parseCSV(await r.text());
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  // Supports dd/mm/yyyy or yyyy-mm-dd
+  if (str.includes('/')) {
+    const [d,m,y] = str.split('/');
+    return new Date(+y, +m-1, +d);
+  }
+  const [y,m,d] = str.split('-');
+  return new Date(+y, +m-1, +d);
+}
+
+function isToday(d) {
+  if (!d) return false;
+  const x = new Date(d); x.setHours(0,0,0,0);
+  return x.getTime() === TODAY.getTime();
+}
+
+function isFuture(d) {
+  if (!d) return false;
+  const x = new Date(d); x.setHours(0,0,0,0);
+  return x.getTime() >= TODAY.getTime();
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'});
+}
+
+function fmtDateShort(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit', month:'short'});
+}
+
+function initials(name) {
+  return (name||'?').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+
+// ── TAGS ──
+function statusTag(s) {
+  const v = (s||'').toLowerCase();
+  if (v.includes('feito') || v.includes('conclu')) return `<span class="status-tag s-feito">✓ Feito</span>`;
+  if (v.includes('andamento')) return `<span class="status-tag s-andamento">◉ Em andamento</span>`;
+  return `<span class="status-tag s-pendente">○ Pendente</span>`;
+}
+
+function catTag(cat) {
+  const v = (cat||'').toLowerCase();
+  if (v.includes('mentor')) return `<span class="cat-tag cat-mentoria">Mentoria</span>`;
+  if (v.includes('conte')) return `<span class="cat-tag cat-conteudo">Conteúdo</span>`;
+  if (v.includes('pessoal')) return `<span class="cat-tag cat-pessoal">Pessoal</span>`;
+  if (v.includes('admin')) return `<span class="cat-tag cat-admin">Admin</span>`;
+  return `<span class="cat-tag cat-admin">${cat}</span>`;
+}
+
+function prioTag(p) {
+  const v = (p||'').toLowerCase();
+  if (v.includes('alta')) return `<span class="prio-alta">🔴 Alta</span>`;
+  return '';
+}
+
+function pgtoTag(v) {
+  const s = (v||'').toLowerCase();
+  if (s.includes('pago') || s.includes('ok')) return `<span class="pgto-ok">✓ Pago</span>`;
+  if (s.includes('atraso') || s.includes('vencid')) return `<span class="pgto-atr">⚠ Atrasado</span>`;
+  return `<span class="pgto-pend">○ Pendente</span>`;
+}
+
+// ── TASK CARD HTML ──
+function taskCardHTML(t) {
+  const done = (t.status||'').toLowerCase().includes('feito') || (t.status||'').toLowerCase().includes('conclu');
+  const d = t.data ? parseDate(t.data) : null;
+  const dateStr = d ? fmtDateShort(d) : '';
+  return `
+    <div class="task-card${done ? ' done' : ''}" id="tc-${t._id}">
+      <div class="task-body">
+        <div class="task-meta">
+          ${catTag(t.categoria)}
+          ${statusTag(t.status)}
+          ${prioTag(t.prioridade)}
+        </div>
+        <div class="task-title">${t.titulo || '—'}</div>
+        ${t.detalhes ? `<div class="task-details">${t.detalhes}</div>` : ''}
+        <div class="task-footer">
+          ${dateStr ? `<div class="task-footer-item">📅 ${dateStr}</div>` : ''}
+          ${t.hora ? `<div class="task-footer-item">🕐 ${t.hora}</div>` : ''}
+          ${t.tempo_estimado ? `<div class="task-footer-item">⏱ ${t.tempo_estimado}</div>` : ''}
+          ${t.vinculado_a ? `<div class="task-footer-item">🔗 ${t.vinculado_a}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── EVENTO CARD HTML ──
+function eventoCardHTML(ev) {
+  return `
+    <div class="evento-card">
+      <div class="evento-time">
+        <div class="hora">${ev.hora || '—'}</div>
+        ${ev.duracao ? `<div class="dur">${ev.duracao}</div>` : ''}
+      </div>
+      <div class="evento-divider"></div>
+      <div class="evento-info">
+        <div class="evento-title">${ev.evento || '—'}</div>
+        <div class="evento-sub">
+          ${catTag(ev.categoria)}
+          ${ev.local_link ? ` · <a href="${ev.local_link}" target="_blank" style="color:var(--accent);font-size:11px;">↗ Link</a>` : ''}
+          ${ev.notas ? ` · ${ev.notas}` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── DATA ──
+const D = { config: {}, tarefas: [], agenda: [], clientes: [] };
+
+// ── RENDER HOJE ──
+function renderHoje() {
+  // Greeting
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Bom dia,' : h < 18 ? 'Boa tarde,' : 'Boa noite,';
+  document.getElementById('hero-greeting').textContent = greet;
+  document.getElementById('hero-name').textContent = (D.config.nome || 'Laís Valentini') + ' ✦';
+  document.getElementById('hero-date').textContent = TODAY.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  // Stats
+  const hojeT = D.tarefas.filter(t => t.data && isToday(parseDate(t.data)));
+  const pendentes = D.tarefas.filter(t => {
+    const s = (t.status||'').toLowerCase();
+    return !s.includes('feito') && !s.includes('conclu');
+  });
+  const feitas = D.tarefas.filter(t => {
+    const s = (t.status||'').toLowerCase();
+    return s.includes('feito') || s.includes('conclu');
+  });
+  document.getElementById('stat-hoje').textContent = hojeT.length;
+  document.getElementById('stat-pend').textContent = pendentes.length;
+  document.getElementById('stat-feito').textContent = feitas.length;
+  document.getElementById('stat-clientes').textContent = D.clientes.length;
+
+  // Badge contagem pendentes
+  if (pendentes.length > 0) {
+    const b = document.getElementById('badge-tarefas');
+    b.textContent = pendentes.length; b.style.display = 'inline-flex';
+  }
+
+  // Cat badges no hero
+  const cats = ['Mentoria','Conteúdo','Pessoal','Admin'];
+  const catCounts = {};
+  cats.forEach(c => {
+    catCounts[c] = pendentes.filter(t => (t.categoria||'').toLowerCase().includes(c.toLowerCase().replace('ú','u').replace('é','e').replace('ó','o').replace('ã','a').replace('á','a'))).length;
+  });
+  const badgesEl = document.getElementById('cat-badges');
+  badgesEl.innerHTML = cats.map(c => {
+    const cnt = pendentes.filter(t => (t.categoria||'').toLowerCase().includes(c.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''))).length;
+    if (!cnt) return '';
+    return `<div class="cat-badge-mini cat-${c.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace('u','u')}">${c}: <strong>${cnt}</strong></div>`;
+  }).join('');
+
+  // Eventos de hoje
+  const hojeEv = D.agenda.filter(ev => ev.data && isToday(parseDate(ev.data)));
+  const agendaWrap = document.getElementById('hoje-agenda-wrap');
+  if (hojeEv.length) {
+    agendaWrap.innerHTML = `<div class="section-title">✦ Agenda de hoje</div>` +
+      hojeEv.sort((a,b) => (a.hora||'').localeCompare(b.hora||'')).map(eventoCardHTML).join('');
+    agendaWrap.style.marginBottom = '28px';
+  }
+
+  // Tarefas de hoje
+  const tarefasWrap = document.getElementById('hoje-tarefas-wrap');
+  if (!hojeT.length && !hojeEv.length) {
+    tarefasWrap.innerHTML = `
+      <div class="hoje-empty">
+        <div class="icon">🌊</div>
+        Nenhuma tarefa ou compromisso para hoje.<br>
+        <span style="font-size:12px;color:#aaa;margin-top:8px;display:block">Me envie suas tarefas e eu organizo aqui!</span>
+      </div>`;
+    return;
+  }
+
+  if (hojeT.length) {
+    tarefasWrap.innerHTML = `<div class="section-title">✦ Tarefas de hoje</div>` +
+      hojeT.sort((a,b) => (a.hora||'99').localeCompare(b.hora||'99')).map(taskCardHTML).join('');
+  }
+}
+
+// ── RENDER TAREFAS ──
+let activeFilters = new Set(['todos']);
+function renderTarefas(filter='todos') {
+  let list = D.tarefas;
+  if (filter !== 'todos') {
+    const catFilters = ['mentoria','conteudo','pessoal','admin'];
+    if (catFilters.includes(filter)) {
+      list = list.filter(t => (t.categoria||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(filter));
+    } else {
+      // status filter
+      list = list.filter(t => {
+        const s = (t.status||'').toLowerCase();
+        if (filter === 'feito') return s.includes('feito') || s.includes('conclu');
+        if (filter === 'andamento') return s.includes('andamento');
+        if (filter === 'pendente') return !s.includes('feito') && !s.includes('conclu') && !s.includes('andamento');
+        return true;
+      });
+    }
+  }
+
+  // Sort: pendentes com data primeiro, depois por data, depois sem data
+  list.sort((a,b) => {
+    const da = a.data ? parseDate(a.data) : null;
+    const db = b.data ? parseDate(b.data) : null;
+    if (da && db) return da - db;
+    if (da) return -1;
+    if (db) return 1;
+    return 0;
+  });
+
+  const wrap = document.getElementById('tarefas-list');
+  if (!list.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">✅</div>Nenhuma tarefa encontrada.</div>`;
+    return;
+  }
+
+  // Group by date
+  const groups = new Map();
+  list.forEach(t => {
+    const d = t.data ? parseDate(t.data) : null;
+    let key = d ? d.toISOString().split('T')[0] : '_sem_data';
+    if (!groups.has(key)) groups.set(key, { date: d, tasks: [] });
+    groups.get(key).tasks.push(t);
+  });
+
+  let html = '';
+  groups.forEach(({ date, tasks }, key) => {
+    let label;
+    if (key === '_sem_data') { label = 'Sem data'; }
+    else {
+      const x = new Date(date); x.setHours(0,0,0,0);
+      const todayMs = TODAY.getTime();
+      if (x.getTime() === todayMs) label = '📅 Hoje · ' + fmtDate(date);
+      else if (x.getTime() === todayMs + 86400000) label = 'Amanhã · ' + fmtDate(date);
+      else label = fmtDate(date);
+    }
+    html += `<div class="date-sep">${label}</div>`;
+    html += tasks.map(taskCardHTML).join('');
+  });
+  wrap.innerHTML = html;
+}
+
+// ── RENDER AGENDA ──
+function renderAgenda() {
+  const wrap = document.getElementById('agenda-list');
+  const futuros = D.agenda.filter(ev => ev.data && isFuture(parseDate(ev.data)));
+  futuros.sort((a,b) => {
+    const da = parseDate(a.data), db = parseDate(b.data);
+    if (da - db !== 0) return da - db;
+    return (a.hora||'').localeCompare(b.hora||'');
+  });
+
+  if (!futuros.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">📅</div>Nenhum evento próximo.<br><span style="font-size:12px;color:#aaa">Adicione eventos na aba <strong>agenda</strong> da planilha.</span></div>`;
+    return;
+  }
+
+  // Group by month
+  const months = new Map();
+  futuros.forEach(ev => {
+    const d = parseDate(ev.data);
+    const mkey = `${d.getFullYear()}-${String(d.getMonth()).padStart(2,'0')}`;
+    if (!months.has(mkey)) months.set(mkey, { label: d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}), days: new Map() });
+    const dkey = d.toISOString().split('T')[0];
+    const m = months.get(mkey);
+    if (!m.days.has(dkey)) m.days.set(dkey, { date: d, events: [] });
+    m.days.get(dkey).events.push(ev);
+  });
+
+  let html = '';
+  months.forEach(({ label, days }) => {
+    html += `<div class="month-sep">✦ ${label.charAt(0).toUpperCase() + label.slice(1)}</div>`;
+    days.forEach(({ date, events }) => {
+      const x = new Date(date); x.setHours(0,0,0,0);
+      const isHoje = x.getTime() === TODAY.getTime();
+      const wday = date.toLocaleDateString('pt-BR',{weekday:'long'});
+      html += `
+        <div class="agenda-day-block">
+          <div class="agenda-day-header">
+            <div class="agenda-day-num">${date.getDate()}</div>
+            <div class="agenda-day-label${isHoje?' hoje-label':''}">${wday}${isHoje?' · hoje':''}</div>
+          </div>
+          ${events.map(eventoCardHTML).join('')}
+        </div>`;
+    });
+  });
+  wrap.innerHTML = html;
+}
+
+// ── RENDER CLIENTES ──
+function renderClientes() {
+  const grid = document.getElementById('clientes-grid');
+  if (!D.clientes.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">👥</div>Nenhum cliente cadastrado.<br><span style="font-size:12px;color:#aaa">Preencha a aba <strong>clientes</strong> na planilha.</span></div>`;
+    return;
+  }
+  grid.innerHTML = D.clientes.map(c => {
+    const meses = parseInt(c.meses_contratados) || 0;
+    const atual = parseInt(c.mes_atual) || 0;
+    const pct = meses ? Math.round(atual/meses*100) : 0;
+    const wa = c.whatsapp ? c.whatsapp.replace(/\D/g,'') : '';
+    return `
+      <div class="cliente-card">
+        <div class="cliente-avatar">${initials(c.nome)}</div>
+        <div class="cliente-name">${c.nome || '—'}</div>
+        <div class="cliente-prog-label">Mês ${atual} de ${meses} · ${pct}% da mentoria</div>
+        <div class="cliente-bar-wrap"><div class="cliente-bar" style="width:${pct}%"></div></div>
+        <div class="cliente-meta">
+          <div class="cliente-meta-row">
+            <span class="cliente-meta-key">Próxima sessão</span>
+            <span>${c.proxima_sessao || '—'}</span>
+          </div>
+          <div class="cliente-meta-row">
+            <span class="cliente-meta-key">Pagamento</span>
+            <span>${pgtoTag(c.status_pagamento)}</span>
+          </div>
+        </div>
+        ${c.notas ? `<div class="cliente-notas">${c.notas}</div>` : ''}
+        ${wa ? `<a class="cliente-whatsapp" href="https://wa.me/55${wa}" target="_blank">💬 WhatsApp</a>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// ── FILTERS ──
+document.getElementById('tarefas-filters').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('#tarefas-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTarefas(btn.dataset.filter);
+});
+
+// ── NAV ──
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+  });
+});
+
+// ── BOOT ──
+async function boot() {
+  if (!SHEET_ID) {
+    document.getElementById('loading').classList.add('hide');
+    document.getElementById('hero-greeting').textContent = '';
+    document.getElementById('hero-name').textContent = 'Laís Valentini ✦';
+    document.getElementById('hero-date').textContent = '⚠ Adicione ?sheet=ID_DA_PLANILHA na URL para carregar dados';
+    return;
+  }
+  try {
+    const [configRows, tarefaRows, agendaRows, clienteRows] = await Promise.all([
+      fetchCSV('config'), fetchCSV('tarefas'), fetchCSV('agenda'), fetchCSV('clientes')
+    ]);
+    if (configRows.length) D.config = configRows[0];
+    D.tarefas = tarefaRows.filter(r => r.titulo).map((r,i) => ({ ...r, _id: i }));
+    D.agenda  = agendaRows.filter(r => r.evento);
+    D.clientes = clienteRows.filter(r => r.nome);
+    document.getElementById('last-update').textContent = 'Atualizado em ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    renderHoje();
+    renderTarefas('todos');
+    renderAgenda();
+    renderClientes();
+  } catch(e) {
+    document.getElementById('hero-date').textContent = '⚠ Erro ao carregar dados. Verifique se a planilha está pública (Qualquer pessoa com o link pode visualizar).';
+    console.error(e);
+  }
+  setTimeout(() => document.getElementById('loading').classList.add('hide'), 200);
+}
+
+boot();
+</script>
+</body>
+</html>
