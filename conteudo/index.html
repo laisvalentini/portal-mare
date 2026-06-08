@@ -416,6 +416,25 @@
     .checklist-item.checked { border-color: #489850; background: rgba(72,152,80,.08); color: #316035; }
     .checklist-item input { display: none; }
 
+    .prod-checklist { display: flex; flex-direction: column; gap: 7px; }
+    .prod-row { display: flex; align-items: center; gap: 8px; }
+    .prod-row .checklist-item { flex: 1; }
+    .prod-row input[type="date"] {
+      width: 152px; padding: 9px 12px; border-radius: var(--radius-xs);
+      border: 1.5px solid var(--border); font-size: 12px; font-family: 'Poppins', sans-serif;
+      background: var(--cream); color: var(--text); outline: none; transition: border-color .15s;
+    }
+    .prod-row input[type="date"]:focus { border-color: var(--dark); background: var(--white); }
+    .field-hint {
+      font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.6;
+      background: rgba(201,185,154,.18); border-left: 2px solid var(--accent);
+      padding: 8px 12px; border-radius: 0 8px 8px 0;
+    }
+    .check-date-badge {
+      font-size: 9px; font-weight: 600; color: var(--muted);
+      background: var(--bg); border-radius: 6px; padding: 2px 6px; margin-left: 4px;
+    }
+
     .modal-footer {
       display: flex; justify-content: space-between; align-items: center;
       margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border);
@@ -606,12 +625,25 @@
 
     <div class="field">
       <label class="field-label">Checklist de Produção</label>
-      <div class="checklist-items" id="f-checklist">
-        <label class="checklist-item"><input type="checkbox" value="criacao"> ✍️ Criação</label>
-        <label class="checklist-item"><input type="checkbox" value="edicao"> ✂️ Edição</label>
-        <label class="checklist-item"><input type="checkbox" value="capa"> 🖼️ Capa</label>
-        <label class="checklist-item"><input type="checkbox" value="legenda"> 📝 Legenda</label>
+      <div class="prod-checklist" id="f-checklist">
+        <div class="prod-row">
+          <label class="checklist-item"><input type="checkbox" value="criacao"> ✍️ Criação / gravação</label>
+          <input type="date" class="prod-date" data-key="criacao" id="f-data-criacao">
+        </div>
+        <div class="prod-row">
+          <label class="checklist-item"><input type="checkbox" value="edicao"> ✂️ Edição</label>
+          <input type="date" class="prod-date" data-key="edicao" id="f-data-edicao">
+        </div>
+        <div class="prod-row">
+          <label class="checklist-item"><input type="checkbox" value="capa"> 🖼️ Capa</label>
+          <input type="date" class="prod-date" data-key="capa" id="f-data-capa">
+        </div>
+        <div class="prod-row">
+          <label class="checklist-item"><input type="checkbox" value="legenda"> 📝 Legenda</label>
+          <input type="date" class="prod-date" data-key="legenda" id="f-data-legenda">
+        </div>
       </div>
+      <div class="field-hint">✦ Marque a data de cada etapa — elas aparecem automaticamente como tarefas do dia no Portal Central.</div>
     </div>
 
     <div class="field">
@@ -711,9 +743,17 @@ function renderKanban() {
   }).join('');
 }
 
+const PROD_LABELS = { criacao:'🎬 Gravar', edicao:'✂️ Editar', capa:'🖼️ Capa', legenda:'📝 Legenda' };
+function prodDateBadges(item) {
+  return ['criacao','edicao','capa','legenda']
+    .filter(k => item.checklistDatas?.[k])
+    .map(k => `<span class="check-date-badge" title="${PROD_LABELS[k]}">${PROD_LABELS[k].split(' ')[0]} ${fmtDate(item.checklistDatas[k])}</span>`)
+    .join('');
+}
 function buildCard(item) {
   const checks = ['criacao','edicao','capa','legenda']
     .map(k => `<div class="check-dot ${item.checklist?.[k]?'done':''}" title="${k}"></div>`).join('');
+  const dateBadges = prodDateBadges(item);
   const fmtTags   = (item.formatos||[]).map(f => `<span class="tag tag-formato">${esc(f)}</span>`).join('');
   const canalTags = (item.canais  ||[]).map(c => `<span class="tag tag-canal">${esc(c)}</span>`).join('');
   const pilarTags = (item.pilares ||[]).map(p => `<span class="tag ${PILAR_CLASS[p]||''}">${esc(p)}</span>`).join('');
@@ -727,6 +767,7 @@ function buildCard(item) {
     ${item.descricao ? `<div class="card-desc">${esc(item.descricao)}</div>` : ''}
     ${(fmtTags||canalTags) ? `<div class="tags-row">${fmtTags}${canalTags}</div>` : ''}
     ${pilarTags ? `<div class="tags-row">${pilarTags}</div>` : ''}
+    ${dateBadges ? `<div class="tags-row">${dateBadges}</div>` : ''}
     <div class="card-footer">
       <div class="check-dots">${checks}</div>
       <div class="card-date">${item.data ? fmtDate(item.data) : ''}</div>
@@ -859,6 +900,8 @@ function openModal(id = null) {
     if (!inp) return;
     inp.checked = !!item?.checklist?.[k];
     inp.closest('label').classList.toggle('checked', !!item?.checklist?.[k]);
+    const dateInp = document.getElementById(`f-data-${k}`);
+    if (dateInp) dateInp.value = item?.checklistDatas?.[k] || '';
   });
   document.getElementById('btn-delete').classList.toggle('hidden', !item);
   document.getElementById('modal-overlay').classList.remove('hidden');
@@ -875,12 +918,16 @@ function saveItem() {
   const status = document.querySelector('#f-status .status-option.selected')?.dataset.value || 'ideia';
   const getChecked = id => [...document.querySelectorAll(`#${id} input:checked`)].map(i => i.value);
   const checklist = {};
-  ['criacao','edicao','capa','legenda'].forEach(k => { checklist[k] = !!(document.querySelector(`#f-checklist input[value="${k}"]`)?.checked); });
+  const checklistDatas = {};
+  ['criacao','edicao','capa','legenda'].forEach(k => {
+    checklist[k] = !!(document.querySelector(`#f-checklist input[value="${k}"]`)?.checked);
+    checklistDatas[k] = document.getElementById(`f-data-${k}`)?.value || '';
+  });
   const item = {
     id: editingId || (Date.now().toString(36) + Math.random().toString(36).slice(2)),
     nome, descricao: document.getElementById('f-desc').value.trim(), status,
     formatos: getChecked('f-formatos'), canais: getChecked('f-canais'), pilares: getChecked('f-pilares'),
-    checklist, data: document.getElementById('f-data').value,
+    checklist, checklistDatas, data: document.getElementById('f-data').value,
     updatedAt: new Date().toISOString(),
   };
   if (editingId) { const idx = data.findIndex(i => i.id === editingId); if (idx > -1) data[idx] = item; }
