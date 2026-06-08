@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>maré · Portais</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Poppins',sans-serif; background:#F0EDE7; color:#1A1818;
+         min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .wrap { max-width:480px; width:100%; text-align:center; }
+  .logo { font-size:40px; font-weight:900; color:#1C1C1C; letter-spacing:-2px; margin-bottom:6px; }
+  .logo span { color:#C9B99A; }
+  .sub { font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#888; margin-bottom:36px; }
+  .links { display:flex; flex-direction:column; gap:10px; }
+  a.link {
+    display:block; background:#fff; border:1px solid #E2DDD6; border-radius:14px;
+    padding:16px 20px; text-decoration:none; color:#1C1C1C; font-weight:700; font-size:14px;
+    transition: all .15s;
+  }
+  a.link:hover { border-color:#C9B99A; transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.06); }
+  a.link span { color:#888; font-weight:500; font-size:11px; display:block; margin-top:2px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">ma<span>ré</span></div>
+    <div class="sub">Portais</div>
+    <div class="links">
+      <a class="link" href="lais/">Painel da Laís<span>uso pessoal</span></a>
+      <a class="link" href="giovanna/">Portal — Giovanna<span>mentorada</span></a>
+      <a class="link" href="bruna/">Portal — Bruna<span>mentorada</span></a>
+      <a class="link" href="mentalize/">Portal — Mentalize<span>mentorada</span></a>
+      <a class="link" href="ywg/">Portal — Yes We Grow<span>cliente</span></a>
+    </div>
+  </div>
+</body>
+</html>
