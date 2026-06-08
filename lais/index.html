@@ -659,6 +659,49 @@ function getContentTasks() {
   });
   return out;
 }
+// ── TAREFAS RÁPIDAS (adicionadas pelo Claude via conversa, guardadas numa planilha-ponte) ──
+const QUICK_TASKS_SHEET_ID = '15EdbXfj83HDz9shbFVrILDUfQv__uhsBQN7y01fti6o';
+let quickTasks = [];
+function parseCSV(text) {
+  const rows = []; let cur = ''; let inQ = false; let row = [];
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') { if (inQ && text[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+    else if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+    else if ((c === '\n' || c === '\r') && !inQ) {
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cur.trim()); rows.push(row); row = []; cur = '';
+    } else cur += c;
+  }
+  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.replace(/^"|"$/g,'').trim());
+  return rows.slice(1).filter(r => r.some(c => c)).map(r => {
+    const obj = {};
+    headers.forEach((h,i) => { obj[h] = (r[i]||'').replace(/^"|"$/g,'').trim(); });
+    return obj;
+  });
+}
+async function fetchQuickTasks() {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${QUICK_TASKS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('tarefas-rapidas')}`;
+    const r = await fetch(url);
+    const t = await r.text();
+    quickTasks = parseCSV(t).filter(row => row.data && row.titulo).map((row, i) => ({
+      id: `rapida-${i}-${row.data}`,
+      data: row.data,
+      hora: row.hora || null,
+      emoji: row.emoji || '📌',
+      titulo: row.titulo,
+      sub: 'Tarefa rápida',
+      tag: row.tag || 'Pessoal',
+      status: 'pendente',
+      source: 'rapida',
+    }));
+  } catch (e) {
+    quickTasks = [];
+  }
+}
 function toggleTaskDone(taskId, checked) {
   if (taskId.startsWith('content-')) {
     const items = getContentItems();
@@ -682,7 +725,8 @@ function toggleTaskDone(taskId, checked) {
 function getAllTasks() {
   const doneState = getDoneState();
   const manual = TASKS_DATA.map(t => ({ ...t, status: (t.id in doneState) ? (doneState[t.id] ? 'feito' : 'pendente') : t.status }));
-  return [...manual, ...getContentTasks()];
+  const rapidas = quickTasks.map(t => ({ ...t, status: (t.id in doneState) ? (doneState[t.id] ? 'feito' : 'pendente') : t.status }));
+  return [...manual, ...rapidas, ...getContentTasks()];
 }
 
 // ── ESTADO de filtros / navegação ──
@@ -899,8 +943,9 @@ document.getElementById('week-prev').addEventListener('click', () => { agendaWee
 document.getElementById('week-next').addEventListener('click', () => { agendaWeekOffset++; renderAgenda(); });
 
 // ── BOOT ──
-function boot() {
+async function boot() {
   document.getElementById('last-update').textContent = 'Atualizado em ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  await fetchQuickTasks();
   refreshAll();
   setTimeout(() => document.getElementById('loading').classList.add('hide'), 200);
 }
