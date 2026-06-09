@@ -31,6 +31,7 @@
       color: var(--text);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* ── TOPBAR ── */
@@ -322,8 +323,11 @@
       border-radius: 5px; padding: 3px 7px;
       font-size: 10px; font-weight: 600;
       margin-bottom: 3px; cursor: grab;
-      white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis; color: #fff;
+      overflow: hidden; color: #fff;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
       transition: opacity .15s;
     }
     .cal-card:hover { opacity: .8; }
