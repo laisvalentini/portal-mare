@@ -41,8 +41,9 @@
   .flight-date{font-size:16px; font-weight:700;}
   .flight-route{font-size:13px; opacity:.9;}
   .countdown{text-align:right;}
-  .countdown-num{font-size:30px; font-weight:800; line-height:1;}
-  .countdown-label{font-size:12px; opacity:.9;}
+  .countdown-pre{font-size:11px; font-weight:700; letter-spacing:.1em; opacity:.85; margin-bottom:2px;}
+  .countdown-num{font-size:48px; font-weight:800; line-height:1;}
+  .countdown-label{font-size:12px; opacity:.9; margin-top:2px;}
 
   .pets-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
   .pet-badge{
@@ -84,6 +85,18 @@
   details.explainer summary:before{content:"▸ "; }
   details.explainer[open] summary:before{content:"▾ ";}
   details.explainer .info-card{margin-top:8px;}
+
+  /* Day timeline (roteiro do dia da viagem) */
+  .day-timeline{margin-top:8px; display:flex; flex-direction:column; gap:2px;}
+  .day-sep{font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; margin:12px 0 4px;}
+  .day-sep:first-child{margin-top:2px;}
+  .day-item{display:flex; gap:12px; padding:8px 0; border-bottom:1px dashed var(--border);}
+  .day-item:last-child{border-bottom:none;}
+  .day-time{min-width:52px; font-size:13px; font-weight:700; color:var(--fly-txt); text-align:center;}
+  .day-body{flex:1;}
+  .day-evento{font-size:13px; font-weight:600; color:var(--text-1); margin:0 0 2px;}
+  .day-meta{font-size:11.5px; color:var(--text-2); margin:0;}
+  .day-obs{font-size:11.5px; color:var(--text-3); margin:4px 0 0;}
 
   /* Filters */
   .filters{
@@ -184,8 +197,9 @@
       </div>
     </div>
     <div class="countdown">
+      <div class="countdown-pre" id="countdown-pre">FALTAM</div>
       <div class="countdown-num" id="countdown-num">—</div>
-      <div class="countdown-label">dias para o voo</div>
+      <div class="countdown-label" id="countdown-label">dias para o voo</div>
     </div>
   </div>
 
@@ -215,6 +229,11 @@
       <p class="info-title">✓ Linha do tempo até o voo</p>
       <p class="info-desc">Vacina até 04/08/2026 → coleta de sangue a partir de ~30 dias depois → resultado em ~30 dias → <strong>90 dias de quarentena</strong> contados da coleta → liberados para embarque. Com esse ritmo, a quarentena termina bem antes de 22/02/2027, sobrando uma boa margem de segurança. O CVI (documento final de embarque) só pode ser emitido nos <strong>10 dias</strong> antes do voo — por isso essa etapa aparece na Fase 4, perto da viagem.</p>
     </div>
+  </details>
+
+  <details class="explainer" id="day-details" style="display:none;">
+    <summary>📋 Roteiro hora a hora do dia da viagem</summary>
+    <div class="day-timeline" id="day-timeline"></div>
   </details>
 
   <div class="filters">
@@ -271,18 +290,65 @@
     return Math.round((b.setHours(0,0,0,0) - a.setHours(0,0,0,0)) / 86400000);
   }
 
+  const MONTH_MAP = {jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
+
+  function parsePrazo(raw){
+    if(!raw) return Infinity;
+    const dmy = String(raw).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if(dmy) return new Date(+dmy[3], +dmy[2]-1, +dmy[1]).getTime();
+    const yearMatch = String(raw).match(/(\d{4})/);
+    if(!yearMatch) return Infinity;
+    const year = +yearMatch[1];
+    const s = stripAccents(raw);
+    const re = /(inicio|comeco|fim|final|meio)?\s*(?:de\s+)?(jan(?:eiro)?|fev(?:ereiro)?|mar(?:co)?|abr(?:il)?|mai(?:o)?|jun(?:ho)?|jul(?:ho)?|ago(?:sto)?|set(?:embro)?|out(?:ubro)?|nov(?:embro)?|dez(?:embro)?)/g;
+    let m, best = null;
+    while((m = re.exec(s))){
+      const month = MONTH_MAP[m[2].slice(0,3)];
+      if(!month) continue;
+      let day = 1;
+      if(m[1] === 'fim' || m[1] === 'final') day = 27;
+      else if(m[1] === 'meio') day = 15;
+      if(best === null || month < best.month) best = {month, day};
+    }
+    if(!best) return Infinity;
+    return new Date(year, best.month-1, best.day).getTime();
+  }
+
   function updateCountdown(){
     const today = new Date();
     const diff = daysBetween(new Date(today), new Date(FLIGHT_DATE));
-    document.getElementById('countdown-num').textContent = diff >= 0 ? diff : '0';
+    const d = diff >= 0 ? diff : 0;
+    document.getElementById('countdown-num').textContent = d;
+    document.getElementById('countdown-pre').textContent = d === 1 ? 'FALTA' : 'FALTAM';
+    document.getElementById('countdown-label').textContent = d === 1 ? 'dia para o voo' : 'dias para o voo';
   }
   updateCountdown();
 
-  async function fetchSheet(){
-    const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&t=' + Date.now();
-    const res = await fetch(url, {cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
+  function formatGvizValue(cell){
+    if(!cell) return '';
+    const v = cell.v;
+    if(v == null) return '';
+    if(typeof v === 'string'){
+      // Google's gviz endpoint encodes Date/Time/DateTime cells as literal
+      // strings like "Date(2026,7,4)" (month 0-indexed) instead of formatted text.
+      const dtm = v.match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);
+      if(dtm){
+        const year = +dtm[1], month = +dtm[2], day = +dtm[3];
+        const hasTime = dtm[4] !== undefined;
+        const pad = n => String(n).padStart(2,'0');
+        // pure time-of-day cell uses Sheets' epoch date 1899-12-30
+        if(hasTime && year === 1899 && month === 11 && day === 30){
+          return pad(+dtm[4]) + ':' + pad(+dtm[5]);
+        }
+        const dateStr = pad(day) + '/' + pad(month+1) + '/' + year;
+        return hasTime ? dateStr + ' ' + pad(+dtm[4]) + ':' + pad(+dtm[5]) : dateStr;
+      }
+      return v.trim();
+    }
+    return String(v).trim();
+  }
+
+  function parseGvizText(text){
     const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
     if(!match) throw new Error('NOPARSE');
     const json = JSON.parse(match[1]);
@@ -290,15 +356,43 @@
       throw new Error((json.errors && json.errors[0] && json.errors[0].detailed_message) || 'ERROR');
     }
     const cols = json.table.cols.map(c => stripAccents(c.label));
-    const rows = (json.table.rows || []).map(r => {
+    return (json.table.rows || []).map(r => {
       const obj = {};
       cols.forEach((name, i) => {
         const cell = r.c && r.c[i];
-        obj[name] = cell && cell.v != null ? String(cell.v).trim() : '';
+        obj[name] = formatGvizValue(cell);
       });
       return obj;
-    }).filter(r => r['tarefa']);
-    return rows;
+    });
+  }
+
+  async function fetchGviz(extraParam){
+    const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&headers=1' + (extraParam || '') + '&t=' + Date.now();
+    const res = await fetch(url, {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    return parseGvizText(text);
+  }
+
+  async function fetchSheet(){
+    const rows = await fetchGviz('');
+    return rows.filter(r => r['tarefa']);
+  }
+
+  function dayIcon(item){
+    const s = stripAccents(item);
+    if(s.includes('saida')) return '🚪';
+    if(s.includes('aeroporto')) return '🛫';
+    if(s.includes('carro')) return '🚗';
+    if(s.includes('check')) return '🎫';
+    if(s.includes('vip') || s.includes('sala')) return '💺';
+    if(s.includes('embarque')) return '🛂';
+    if(s.includes('voo') || s.includes('reserva') || s.includes('confirmac') || s.includes('codigo')) return '✈️';
+    if(s.includes('chegada')) return '🛬';
+    if(s.includes('casa')) return '🏠';
+    if(s.includes('hotel') || s.includes('endereco')) return '🏨';
+    if(s.includes('bagagem') || s.includes('mala')) return '🧳';
+    return '📍';
   }
 
   function showError(message){
@@ -390,6 +484,7 @@
       if(activeWho) tasks = tasks.filter(t => t.responsavel === activeWho);
       if(tasks.length === 0) return;
       anyVisible = true;
+      tasks = tasks.slice().sort((a,b) => parsePrazo(a.prazo) - parsePrazo(b.prazo));
 
       const allDone = allRows.filter(r=>r.fase===phase).every(t => normalizeStatus(t.status)==='concluido');
       const isActive = phase === activePhase;
@@ -453,6 +548,71 @@
       'Atualizado às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
   }
 
+  async function loadDayTimeline(){
+    try{
+      const rows = await fetchGviz('&sheet=' + encodeURIComponent('O dia'));
+      const clean = rows.filter(r => r['item']);
+      if(!clean.length){
+        document.getElementById('day-details').style.display = 'none';
+        return;
+      }
+      const isTime = v => /^\d{1,2}:\d{2}$/.test((v || '').trim());
+
+      let dateLabel = '';
+      const timelineRows = [];
+      const infoRows = [];
+      clean.forEach(r => {
+        const itemKey = stripAccents(r['item']);
+        if(itemKey === 'data'){ dateLabel = r['info'] || ''; return; }
+        if(isTime(r['info'])) timelineRows.push(r);
+        else infoRows.push(r);
+      });
+      timelineRows.sort((a,b) => a['info'].localeCompare(b['info']));
+
+      const summaryEl = document.querySelector('#day-details summary');
+      summaryEl.textContent = dateLabel ? ('📅 Roteiro do dia da viagem — ' + dateLabel) : '📅 Roteiro do dia da viagem';
+
+      const box = document.getElementById('day-timeline');
+      box.innerHTML = '';
+
+      timelineRows.forEach(r => {
+        const label = r['item'].replace(/:\s*$/,'').trim();
+        const row = document.createElement('div');
+        row.className = 'day-item';
+        row.innerHTML =
+          '<div class="day-time">' + r['info'] + '</div>' +
+          '<div class="day-body">' +
+            '<p class="day-evento">' + dayIcon(r['item']) + ' ' + label + '</p>' +
+            (r['obs'] ? '<p class="day-meta">' + r['obs'] + '</p>' : '') +
+          '</div>';
+        box.appendChild(row);
+      });
+
+      if(infoRows.length){
+        const sep = document.createElement('div');
+        sep.className = 'day-sep';
+        sep.textContent = 'Outras informações';
+        box.appendChild(sep);
+        infoRows.forEach(r => {
+          const label = r['item'].replace(/:\s*$/,'').trim();
+          const row = document.createElement('div');
+          row.className = 'day-item';
+          row.innerHTML =
+            '<div class="day-time">' + dayIcon(r['item']) + '</div>' +
+            '<div class="day-body">' +
+              '<p class="day-evento">' + label + ': ' + (r['info'] || '') + '</p>' +
+              (r['obs'] ? '<p class="day-meta">' + r['obs'] + '</p>' : '') +
+            '</div>';
+          box.appendChild(row);
+        });
+      }
+
+      document.getElementById('day-details').style.display = 'block';
+    }catch(e){
+      document.getElementById('day-details').style.display = 'none';
+    }
+  }
+
   async function load(){
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error-banner').style.display = 'none';
@@ -463,6 +623,7 @@
     }catch(err){
       showError(err.message || String(err));
     }
+    loadDayTimeline();
   }
 
   document.getElementById('clear-filters').onclick = () => { activeCat = null; activeWho = null; render(); };
