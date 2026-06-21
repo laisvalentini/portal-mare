@@ -86,17 +86,38 @@
   details.explainer[open] summary:before{content:"▾ ";}
   details.explainer .info-card{margin-top:8px;}
 
-  /* Day timeline (roteiro do dia da viagem) */
-  .day-timeline{margin-top:8px; display:flex; flex-direction:column; gap:2px;}
-  .day-sep{font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; margin:12px 0 4px;}
-  .day-sep:first-child{margin-top:2px;}
-  .day-item{display:flex; gap:12px; padding:8px 0; border-bottom:1px dashed var(--border);}
-  .day-item:last-child{border-bottom:none;}
-  .day-time{min-width:52px; font-size:13px; font-weight:700; color:var(--fly-txt); text-align:center;}
-  .day-body{flex:1;}
-  .day-evento{font-size:13px; font-weight:600; color:var(--text-1); margin:0 0 2px;}
-  .day-meta{font-size:11.5px; color:var(--text-2); margin:0;}
-  .day-obs{font-size:11.5px; color:var(--text-3); margin:4px 0 0;}
+  /* Tabs */
+  .tabs{display:flex; gap:24px; margin-bottom:20px; border-bottom:1px solid var(--border);}
+  .tab-btn{
+    background:none; border:none; padding:10px 2px; font-size:14px; font-weight:700;
+    color:var(--text-3); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--fly-txt); border-bottom-color:var(--fly-txt);}
+  .tab-view{display:none;}
+  .tab-view.active{display:block;}
+
+  /* Day view (aba O DIA) */
+  .day-header{margin-bottom:22px;}
+  .day-header-date{font-size:20px; font-weight:800; margin:0 0 3px;}
+  .day-header-route{font-size:13px; color:var(--text-2); margin:0;}
+
+  .day-row{display:flex; gap:14px; padding-bottom:22px;}
+  .day-row:last-child{padding-bottom:0;}
+  .day-row-time{min-width:50px; font-size:13.5px; font-weight:800; color:var(--fly-txt); text-align:right; padding-top:3px;}
+  .day-row-rail{position:relative; display:flex; justify-content:center; width:12px; flex-shrink:0;}
+  .day-row-rail::after{content:''; position:absolute; top:16px; bottom:-22px; width:2px; background:var(--border); left:50%; transform:translateX(-50%);}
+  .day-row:last-child .day-row-rail::after{display:none;}
+  .day-row-dot{width:10px; height:10px; border-radius:50%; background:var(--fly); margin-top:5px; box-shadow:0 0 0 4px var(--fly-bg); position:relative; z-index:1;}
+  .day-row-body{flex:1; padding-top:1px;}
+  .day-row-title{font-size:15px; font-weight:700; color:var(--text-1); margin:0 0 3px;}
+  .day-row-obs{font-size:13px; color:var(--text-2); margin:0;}
+
+  .day-extra{margin-top:26px; padding-top:20px; border-top:1px solid var(--border);}
+  .day-extra-title{font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; margin:0 0 12px;}
+  .day-extra-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px;}
+  .day-extra-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px 14px;}
+  .day-extra-label{font-size:12px; font-weight:700; color:var(--text-2); margin:0 0 3px;}
+  .day-extra-value{font-size:14px; font-weight:700; color:var(--text-1); margin:0;}
 
   /* Filters */
   .filters{
@@ -210,6 +231,13 @@
     <span class="pet-badge">🇪🇸 Passaporte espanhol (Dany) — em andamento</span>
   </div>
 
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-btn-checklist" data-tab="checklist">📋 Checklist da mudança</button>
+    <button class="tab-btn" id="tab-btn-day" data-tab="day">📅 O DIA</button>
+  </div>
+
+  <div class="tab-view active" id="view-checklist">
+
   <div class="progress-card">
     <div class="progress-top">
       <span class="progress-title">Progresso geral da mudança</span>
@@ -218,23 +246,6 @@
     <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
     <p class="progress-sub" id="progress-sub">Carregando dados da planilha…</p>
   </div>
-
-  <details class="explainer">
-    <summary>Como funciona o processo de exportação de Cookie e Louie (clique para entender)</summary>
-    <div class="info-card warn">
-      <p class="info-title">⚠ Prazo crítico — vacina antirrábica</p>
-      <p class="info-desc">A vacina atual vence em <strong>04/08/2026</strong>. A nova dose precisa ser aplicada <strong>antes</strong> dessa data para manter a continuidade. Depois da vacina, é preciso esperar pelo menos <strong>30 dias</strong> para fazer a coleta de sangue (sorologia).</p>
-    </div>
-    <div class="info-card good">
-      <p class="info-title">✓ Linha do tempo até o voo</p>
-      <p class="info-desc">Vacina até 04/08/2026 → coleta de sangue a partir de ~30 dias depois → resultado em ~30 dias → <strong>90 dias de quarentena</strong> contados da coleta → liberados para embarque. Com esse ritmo, a quarentena termina bem antes de 22/02/2027, sobrando uma boa margem de segurança. O CVI (documento final de embarque) só pode ser emitido nos <strong>10 dias</strong> antes do voo — por isso essa etapa aparece na Fase 4, perto da viagem.</p>
-    </div>
-  </details>
-
-  <details class="explainer" id="day-details" style="display:none;">
-    <summary>📋 Roteiro hora a hora do dia da viagem</summary>
-    <div class="day-timeline" id="day-timeline"></div>
-  </details>
 
   <div class="filters">
     <div class="filter-row">
@@ -251,6 +262,19 @@
   <div id="loading">Carregando planilha…</div>
   <div id="error-banner"></div>
   <div id="phases-container"></div>
+
+  </div>
+
+  <div class="tab-view" id="view-day">
+    <div class="day-header">
+      <p class="day-header-date" id="day-header-date">📅 Roteiro do dia da viagem</p>
+      <p class="day-header-route">Viracopos (VCP) → Madrid-Barajas (MAD)</p>
+    </div>
+    <p class="empty-msg" id="day-loading">Carregando roteiro do dia…</p>
+    <p class="empty-msg" id="day-empty" style="display:none;">Ainda não há roteiro cadastrado na aba "O dia" da planilha.</p>
+    <div class="day-timeline-full" id="day-timeline-full"></div>
+    <div class="day-extra" id="day-extra"></div>
+  </div>
 
   <div class="footer">
     <span id="last-updated"></span>
@@ -551,11 +575,21 @@
   }
 
   async function loadDayTimeline(){
+    const loadingEl = document.getElementById('day-loading');
+    const emptyEl = document.getElementById('day-empty');
+    const timelineBox = document.getElementById('day-timeline-full');
+    const extraBox = document.getElementById('day-extra');
+    loadingEl.style.display = 'block';
+    loadingEl.textContent = 'Carregando roteiro do dia…';
+    emptyEl.style.display = 'none';
+    timelineBox.innerHTML = '';
+    extraBox.innerHTML = '';
     try{
       const rows = await fetchGviz('&sheet=' + encodeURIComponent('O dia'));
       const clean = rows.filter(r => r['item']);
+      loadingEl.style.display = 'none';
       if(!clean.length){
-        document.getElementById('day-details').style.display = 'none';
+        emptyEl.style.display = 'block';
         return;
       }
       const isTime = v => /^\d{1,2}:\d{2}$/.test((v || '').trim());
@@ -573,47 +607,46 @@
       // cronológica real do dia (inclui virada de madrugada em voos noturnos,
       // onde "11:10" de chegada vem DEPOIS de "20:55" de embarque).
 
-      const summaryEl = document.querySelector('#day-details summary');
-      summaryEl.textContent = dateLabel ? ('📅 Roteiro do dia da viagem — ' + dateLabel) : '📅 Roteiro do dia da viagem';
-
-      const box = document.getElementById('day-timeline');
-      box.innerHTML = '';
+      document.getElementById('day-header-date').textContent =
+        dateLabel ? ('📅 Roteiro do dia da viagem — ' + dateLabel) : '📅 Roteiro do dia da viagem';
 
       timelineRows.forEach(r => {
         const label = r['item'].replace(/:\s*$/,'').trim();
         const row = document.createElement('div');
-        row.className = 'day-item';
+        row.className = 'day-row';
         row.innerHTML =
-          '<div class="day-time">' + r['info'] + '</div>' +
-          '<div class="day-body">' +
-            '<p class="day-evento">' + dayIcon(r['item']) + ' ' + label + '</p>' +
-            (r['obs'] ? '<p class="day-meta">' + r['obs'] + '</p>' : '') +
+          '<div class="day-row-time">' + r['info'] + '</div>' +
+          '<div class="day-row-rail"><div class="day-row-dot"></div></div>' +
+          '<div class="day-row-body">' +
+            '<p class="day-row-title">' + dayIcon(r['item']) + ' ' + label + '</p>' +
+            (r['obs'] ? '<p class="day-row-obs">' + r['obs'] + '</p>' : '') +
           '</div>';
-        box.appendChild(row);
+        timelineBox.appendChild(row);
       });
 
       if(infoRows.length){
-        const sep = document.createElement('div');
-        sep.className = 'day-sep';
-        sep.textContent = 'Outras informações';
-        box.appendChild(sep);
+        const title = document.createElement('p');
+        title.className = 'day-extra-title';
+        title.textContent = 'Outras informações';
+        extraBox.appendChild(title);
+        const grid = document.createElement('div');
+        grid.className = 'day-extra-grid';
         infoRows.forEach(r => {
           const label = r['item'].replace(/:\s*$/,'').trim();
-          const row = document.createElement('div');
-          row.className = 'day-item';
-          row.innerHTML =
-            '<div class="day-time">' + dayIcon(r['item']) + '</div>' +
-            '<div class="day-body">' +
-              '<p class="day-evento">' + label + ': ' + (r['info'] || '') + '</p>' +
-              (r['obs'] ? '<p class="day-meta">' + r['obs'] + '</p>' : '') +
-            '</div>';
-          box.appendChild(row);
+          const card = document.createElement('div');
+          card.className = 'day-extra-card';
+          card.innerHTML =
+            '<p class="day-extra-label">' + dayIcon(r['item']) + ' ' + label + '</p>' +
+            '<p class="day-extra-value">' + (r['info'] || '') + '</p>' +
+            (r['obs'] ? '<p class="day-row-obs" style="margin-top:4px;">' + r['obs'] + '</p>' : '');
+          grid.appendChild(card);
         });
+        extraBox.appendChild(grid);
       }
-
-      document.getElementById('day-details').style.display = 'block';
     }catch(e){
-      document.getElementById('day-details').style.display = 'none';
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'Não consegui carregar o roteiro do dia (verifique se a aba "O dia" existe na planilha).';
     }
   }
 
@@ -632,6 +665,15 @@
 
   document.getElementById('clear-filters').onclick = () => { activeCat = null; activeWho = null; render(); };
   document.getElementById('refresh-btn').onclick = load;
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('view-' + btn.dataset.tab).classList.add('active');
+    };
+  });
 
   load();
   setInterval(updateCountdown, 60*60*1000);
