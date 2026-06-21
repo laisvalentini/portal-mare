@@ -341,7 +341,9 @@
           return pad(+dtm[4]) + ':' + pad(+dtm[5]);
         }
         const dateStr = pad(day) + '/' + pad(month+1) + '/' + year;
-        return hasTime ? dateStr + ' ' + pad(+dtm[4]) + ':' + pad(+dtm[5]) : dateStr;
+        // se a hora for exatamente 00:00:00, trata como data "pura" (sem hora)
+        const showTime = hasTime && !(+dtm[4] === 0 && +dtm[5] === 0 && (dtm[6] === undefined || +dtm[6] === 0));
+        return showTime ? dateStr + ' ' + pad(+dtm[4]) + ':' + pad(+dtm[5]) : dateStr;
       }
       return v.trim();
     }
@@ -567,7 +569,9 @@
         if(isTime(r['info'])) timelineRows.push(r);
         else infoRows.push(r);
       });
-      timelineRows.sort((a,b) => a['info'].localeCompare(b['info']));
+      // Não ordena por horário: a ordem das linhas na planilha já é a ordem
+      // cronológica real do dia (inclui virada de madrugada em voos noturnos,
+      // onde "11:10" de chegada vem DEPOIS de "20:55" de embarque).
 
       const summaryEl = document.querySelector('#day-details summary');
       summaryEl.textContent = dateLabel ? ('📅 Roteiro do dia da viagem — ' + dateLabel) : '📅 Roteiro do dia da viagem';
