@@ -337,6 +337,18 @@ function statusTag(s) {
 
 function pct(total, done) { return total ? Math.round(done/total*100) : 0; }
 
+// % ponderado: tarefa concluída conta 1, em andamento conta 0.5, não iniciada conta 0
+function pctWeighted(tasks) {
+  if (!tasks.length) return 0;
+  const score = tasks.reduce((sum, t) => {
+    const s = (t.status||'').toLowerCase();
+    if (s.includes('conclu')) return sum + 1;
+    if (s.includes('andamento')) return sum + 0.5;
+    return sum;
+  }, 0);
+  return Math.round(score / tasks.length * 100);
+}
+
 // Agrupa tarefas por entregável (chave: macro+entregavel para evitar colisão)
 function entregaveisDoMacro(tasks) {
   const map = new Map();
@@ -381,7 +393,7 @@ function renderResumo() {
     // Cards do Resumo: contar por tarefa
     const done = m.tasks.filter(t => (t.status||'').toLowerCase().includes('conclu')).length;
     const inProg = m.tasks.filter(t => (t.status||'').toLowerCase().includes('andamento')).length;
-    const p2 = pct(m.tasks.length, done);
+    const p2 = pctWeighted(m.tasks);
     grid.innerHTML += `
       <div class="macro-card" onclick="goToCronograma(${i})">
         <div class="mc-num" style="color:${mc.dark}">${m.num}. Atividade</div>
@@ -416,9 +428,9 @@ function renderAccordion(tasks, wrapId, idPrefix, emptyMsg) {
   }
   macros.forEach((m, i) => {
     const mc = MACRO_COLORS[i % MACRO_COLORS.length];
-    // Progresso por tarefa
+    // Progresso por tarefa (em andamento conta como 50%)
     const done = m.tasks.filter(t => (t.status||'').toLowerCase().includes('conclu')).length;
-    const p2 = pct(m.tasks.length, done);
+    const p2 = pctWeighted(m.tasks);
 
     // Exibição 3 níveis: Macro → Entregável → Tarefas
     const entMap = new Map();
