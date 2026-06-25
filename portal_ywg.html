@@ -597,7 +597,7 @@ function renderMetricas() {
   if (!items.length) { wrap.innerHTML = ''; title.style.display = 'none'; return; }
   title.style.display = 'block';
   wrap.innerHTML = items.map(m => {
-    const delta = (m.variacao || '').trim();
+    const delta = (m.variacao || m['variação'] || '').trim();
     let deltaClass = 'flat';
     if (delta.startsWith('+')) deltaClass = 'up';
     else if (delta.startsWith('-')) deltaClass = 'down';
@@ -644,7 +644,7 @@ async function boot() {
   }
   try {
     const [configRows, tarefaRows, mensaisRows, materiaisRows, metricasRows] = await Promise.all([
-      fetchCSV('config'), fetchCSV('setup'), fetchCSV('entregas mensais'), fetchCSV('anexos'), fetchCSV('metricas')
+      fetchCSV('config'), fetchCSV('setup'), fetchCSV('entregas mensais'), fetchCSV('anexos'), fetchCSV('Métricas')
     ]);
     if (configRows.length) {
       const r = configRows[0];
