@@ -241,8 +241,9 @@
 
 <nav class="nav">
   <button class="nav-btn active" data-view="resumo">Resumo</button>
-  <button class="nav-btn" data-view="cronograma">Cronograma</button>
-  <button class="nav-btn" data-view="materiais">Materiais</button>
+  <button class="nav-btn" data-view="cronograma">Setup</button>
+  <button class="nav-btn" data-view="mensais">Entregas Mensais</button>
+  <button class="nav-btn" data-view="materiais">Anexos</button>
 </nav>
 
 <div class="main">
@@ -270,12 +271,17 @@
     <div class="macro-grid" id="macro-grid"></div>
   </div>
 
-  <!-- ── CRONOGRAMA ── -->
+  <!-- ── SETUP (cronograma) ── -->
   <div class="view" id="view-cronograma">
     <div id="cronograma-sections"></div>
   </div>
 
-  <!-- ── MATERIAIS ── -->
+  <!-- ── ENTREGAS MENSAIS ── -->
+  <div class="view" id="view-mensais">
+    <div id="mensais-sections"></div>
+  </div>
+
+  <!-- ── ANEXOS (materiais) ── -->
   <div class="view" id="view-materiais">
     <div id="materiais-wrap"></div>
   </div>
@@ -293,7 +299,7 @@ const MACRO_COLORS = [
   {dark:'#2E2E6B', light:'#C8C8EA'},
 ];
 
-const D = { config: {}, tarefas: [], materiais: [] };
+const D = { config: {}, tarefas: [], entregasMensais: [], materiais: [] };
 
 async function fetchCSV(tab) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
@@ -367,7 +373,7 @@ function renderResumo() {
   document.getElementById('hero-pct').textContent = p + '%';
 
   // Macro cards
-  const macros = getGroupedMacros();
+  const macros = getGroupedMacros(D.tarefas);
   const grid = document.getElementById('macro-grid');
   grid.innerHTML = '';
   macros.forEach((m, i) => {
@@ -390,20 +396,24 @@ function renderResumo() {
   });
 }
 
-function getGroupedMacros() {
+function getGroupedMacros(tasks) {
   const map = new Map();
-  D.tarefas.forEach(t => {
-    const key = t.macro_nome || '';
-    if (!map.has(key)) map.set(key, { num: t.macro_num||'', name: key, tasks: [] });
+  tasks.forEach(t => {
+    const key = t.macro_nome || t.macro_num || '';
+    if (!map.has(key)) map.set(key, { num: t.macro_num||'', name: t.macro_nome || t.macro_num || '', tasks: [] });
     map.get(key).tasks.push(t);
   });
   return [...map.values()];
 }
 
-function renderCronograma() {
-  const macros = getGroupedMacros();
-  const wrap = document.getElementById('cronograma-sections');
+function renderAccordion(tasks, wrapId, idPrefix, emptyMsg) {
+  const macros = getGroupedMacros(tasks);
+  const wrap = document.getElementById(wrapId);
   wrap.innerHTML = '';
+  if (!macros.length) {
+    wrap.innerHTML = `<div class="empty-msg">${emptyMsg}</div>`;
+    return;
+  }
   macros.forEach((m, i) => {
     const mc = MACRO_COLORS[i % MACRO_COLORS.length];
     // Progresso por tarefa
@@ -419,8 +429,8 @@ function renderCronograma() {
     });
 
     let entHTML = '';
-    entMap.forEach((tasks, ename) => {
-      const taskRows = tasks.map(t => `
+    entMap.forEach((tasks2, ename) => {
+      const taskRows = tasks2.map(t => `
         <div class="task-row">
           <div class="t-name">${t.tarefa || '—'}</div>
           <div>${statusTag(t.status)}</div>
@@ -435,9 +445,10 @@ function renderCronograma() {
         </div>`;
     });
 
+    const secId = `${idPrefix}-sec-${i}`;
     wrap.innerHTML += `
-      <div class="macro-section" id="macro-sec-${i}">
-        <div class="macro-header" onclick="toggleMacro(${i})">
+      <div class="macro-section" id="${secId}">
+        <div class="macro-header" onclick="toggleMacro('${secId}')">
           <div class="macro-num-badge" style="background:${mc.light};color:${mc.dark}">${m.num||i+1}</div>
           <div class="macro-header-info">
             <h3>${m.name}</h3>
@@ -454,12 +465,20 @@ function renderCronograma() {
   });
 }
 
+function renderCronograma() {
+  renderAccordion(D.tarefas, 'cronograma-sections', 'setup', 'Nenhuma atividade cadastrada na aba Setup ainda.');
+}
+
+function renderEntregasMensais() {
+  renderAccordion(D.entregasMensais, 'mensais-sections', 'mensal', 'Nenhuma entrega mensal cadastrada ainda. Preencha a aba "Entregas Mensais" na planilha.');
+}
+
 function renderMateriais() {
   const wrap = document.getElementById('materiais-wrap');
   wrap.innerHTML = '';
   const items = D.materiais.filter(m => m.titulo && m.link);
   if (!items.length) {
-    wrap.innerHTML = `<div class="materiais-empty"><div class="icon">📂</div>Nenhum material adicionado ainda.<br>Preencha a aba <strong>materiais</strong> na planilha.</div>`;
+    wrap.innerHTML = `<div class="materiais-empty"><div class="icon">📂</div>Nenhum anexo adicionado ainda.<br>Preencha a aba <strong>anexos</strong> na planilha.</div>`;
     return;
   }
   // agrupar por macro
@@ -485,8 +504,8 @@ function renderMateriais() {
   });
 }
 
-function toggleMacro(i) {
-  const el = document.getElementById(`macro-sec-${i}`);
+function toggleMacro(id) {
+  const el = document.getElementById(id);
   el.classList.toggle('open');
 }
 
@@ -496,7 +515,7 @@ function goToCronograma(macroIdx) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-cronograma').classList.add('active');
   setTimeout(() => {
-    const el = document.getElementById(`macro-sec-${macroIdx}`);
+    const el = document.getElementById(`setup-sec-${macroIdx}`);
     if (el) { el.classList.add('open'); el.scrollIntoView({behavior:'smooth',block:'start'}); }
   }, 100);
 }
@@ -518,18 +537,20 @@ async function boot() {
     return;
   }
   try {
-    const [configRows, tarefaRows, materiaisRows] = await Promise.all([
-      fetchCSV('config'), fetchCSV('cronograma'), fetchCSV('materiais')
+    const [configRows, tarefaRows, mensaisRows, materiaisRows] = await Promise.all([
+      fetchCSV('config'), fetchCSV('setup'), fetchCSV('entregas mensais'), fetchCSV('anexos')
     ]);
     if (configRows.length) {
       const r = configRows[0];
       D.config = { nome_projeto: r.nome_projeto||'Yes We Grow', descricao: r.descricao||'', responsavel: r.responsavel||'' };
     }
     D.tarefas = tarefaRows.filter(r => r.tarefa);
+    D.entregasMensais = mensaisRows.filter(r => r.tarefa);
     D.materiais = materiaisRows.filter(r => r.titulo);
     document.getElementById('last-update').textContent = 'Atualizado em ' + new Date().toLocaleDateString('pt-BR');
     renderResumo();
     renderCronograma();
+    renderEntregasMensais();
     renderMateriais();
   } catch(e) {
     document.getElementById('hero-sub').textContent = 'Erro ao carregar dados. Verifique se a planilha está pública.';
