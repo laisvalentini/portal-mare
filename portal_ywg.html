@@ -114,6 +114,18 @@
   .mc-counts { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
   .mc-counts .done { font-weight: 700; }
 
+  /* ── MÉTRICAS DA MARCA ── */
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media(max-width:800px){ .metric-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:500px){ .metric-grid { grid-template-columns: 1fr; } }
+  .metric-card { background: var(--white); border-radius: 14px; padding: 20px; border: 1px solid var(--border); }
+  .metric-card .m-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .metric-card .m-value { font-size: 26px; font-weight: 800; color: var(--dark); line-height: 1.1; }
+  .metric-card .m-delta { display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .m-delta.up { background: #D4EAD4; color: #2E6B2E; }
+  .m-delta.down { background: #FAD4D4; color: #8B2E2E; }
+  .m-delta.flat { background: var(--bg); color: var(--muted); }
+
   /* ── CRONOGRAMA PAGE ── */
   .macro-section { margin-bottom: 20px; background: var(--white); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
   .macro-header {
@@ -252,7 +264,7 @@
   <div class="view active" id="view-resumo">
     <div class="hero-card" id="hero-card">
       <div class="hero-left">
-        <div class="fase-tag">✦ Fase 1 — Setup</div>
+        <div class="fase-tag" id="fase-tag">✦ Fase 1 — Setup</div>
         <h1 id="hero-title">Yes We Grow</h1>
         <p id="hero-sub">Carregando dados...</p>
         <div class="hero-stats">
@@ -267,8 +279,11 @@
       </div>
     </div>
 
-    <div class="section-title">✦ Atividades do Setup</div>
+    <div class="section-title" id="section-title-resumo">✦ Atividades do Setup</div>
     <div class="macro-grid" id="macro-grid"></div>
+
+    <div class="section-title" id="metricas-title" style="display:none">✦ A Marca em Números</div>
+    <div class="metric-grid" id="metric-grid"></div>
   </div>
 
   <!-- ── SETUP (cronograma) ── -->
@@ -299,7 +314,10 @@ const MACRO_COLORS = [
   {dark:'#2E2E6B', light:'#C8C8EA'},
 ];
 
-const D = { config: {}, tarefas: [], entregasMensais: [], materiais: [] };
+const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function currentMonthName() { return MESES_PT[new Date().getMonth()]; }
+
+const D = { config: {}, tarefas: [], entregasMensais: [], materiais: [], metricas: [] };
 
 async function fetchCSV(tab) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
@@ -368,44 +386,90 @@ function statusEntregavel(tasks) {
   return 'nao';
 }
 
+// Resumo (home): hero dinâmico — mostra Setup enquanto não estiver 100%,
+// depois passa a mostrar as Entregas Mensais do mês atual automaticamente.
 function renderResumo() {
-  const tarefas = D.tarefas;
-  // Contar por entregável, não por tarefa
-  const ents = entregaveisDoMacro(tarefas);
-  const total = ents.length;
-  const conc = ents.filter(e => statusEntregavel(e) === 'concluido').length;
-  const em = ents.filter(e => statusEntregavel(e) === 'em').length;
-  const p = pct(total, conc);
+  const ents = entregaveisDoMacro(D.tarefas);
+  const totalSetup = ents.length;
+  const concSetup = ents.filter(e => statusEntregavel(e) === 'concluido').length;
+  const setupPct = pct(totalSetup, concSetup);
+  const faseMensal = totalSetup > 0 && setupPct >= 100;
 
-  document.getElementById('hero-title').textContent = D.config.nome_projeto || 'Yes We Grow';
-  document.getElementById('hero-sub').textContent = D.config.descricao || 'Marketing digital · E-commerce · Reativação de marca';
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-conc').textContent = conc;
-  document.getElementById('stat-em').textContent = em;
-  document.getElementById('hero-pct').textContent = p + '%';
-
-  // Macro cards
-  const macros = getGroupedMacros(D.tarefas);
+  const faseTag = document.getElementById('fase-tag');
+  const sectionTitle = document.getElementById('section-title-resumo');
   const grid = document.getElementById('macro-grid');
-  grid.innerHTML = '';
-  macros.forEach((m, i) => {
-    const mc = MACRO_COLORS[i % MACRO_COLORS.length];
-    // Cards do Resumo: contar por tarefa
-    const done = m.tasks.filter(t => (t.status||'').toLowerCase().includes('conclu')).length;
-    const inProg = m.tasks.filter(t => (t.status||'').toLowerCase().includes('andamento')).length;
-    const p2 = pctWeighted(m.tasks);
-    grid.innerHTML += `
-      <div class="macro-card" onclick="goToCronograma(${i})">
-        <div class="mc-num" style="color:${mc.dark}">${m.num}. Atividade</div>
-        <div class="mc-name">${m.name}</div>
-        <div class="mc-bar-wrap"><div class="mc-bar" style="width:${p2}%;background:${mc.dark}"></div></div>
-        <div class="mc-counts">
-          <span>${done} de ${m.tasks.length} tarefas concluídas</span>
-          <span class="done" style="color:${mc.dark}">${p2}%</span>
-        </div>
-        ${inProg > 0 ? `<div style="margin-top:8px;font-size:10px;color:#8B6914;background:#FFF3CD;display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700">${inProg} em andamento</div>` : ''}
-      </div>`;
-  });
+  document.getElementById('hero-title').textContent = D.config.nome_projeto || 'Yes We Grow';
+
+  if (!faseMensal) {
+    // ── FASE 1: SETUP ──
+    faseTag.textContent = '✦ Fase 1 — Setup';
+    sectionTitle.textContent = '✦ Atividades do Setup';
+    document.getElementById('hero-sub').textContent = D.config.descricao || 'Marketing digital · E-commerce · Reativação de marca';
+    document.getElementById('stat-total').textContent = totalSetup;
+    document.getElementById('stat-conc').textContent = concSetup;
+    document.getElementById('stat-em').textContent = ents.filter(e => statusEntregavel(e) === 'em').length;
+    document.getElementById('hero-pct').textContent = setupPct + '%';
+
+    const macros = getGroupedMacros(D.tarefas);
+    grid.innerHTML = '';
+    macros.forEach((m, i) => {
+      const mc = MACRO_COLORS[i % MACRO_COLORS.length];
+      const done = m.tasks.filter(t => (t.status||'').toLowerCase().includes('conclu')).length;
+      const inProg = m.tasks.filter(t => (t.status||'').toLowerCase().includes('andamento')).length;
+      const p2 = pctWeighted(m.tasks);
+      grid.innerHTML += `
+        <div class="macro-card" onclick="goToCronograma(${i})">
+          <div class="mc-num" style="color:${mc.dark}">${m.num}. Atividade</div>
+          <div class="mc-name">${m.name}</div>
+          <div class="mc-bar-wrap"><div class="mc-bar" style="width:${p2}%;background:${mc.dark}"></div></div>
+          <div class="mc-counts">
+            <span>${done} de ${m.tasks.length} tarefas concluídas</span>
+            <span class="done" style="color:${mc.dark}">${p2}%</span>
+          </div>
+          ${inProg > 0 ? `<div style="margin-top:8px;font-size:10px;color:#8B6914;background:#FFF3CD;display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700">${inProg} em andamento</div>` : ''}
+        </div>`;
+    });
+  } else {
+    // ── FASE 2: ENTREGAS MENSAIS ──
+    const mes = currentMonthName();
+    const monthTasks = D.entregasMensais.filter(t => (t.macro_nome || t.macro_num || '').trim().toLowerCase() === mes.toLowerCase());
+    const entsMes = entregaveisDoMacro(monthTasks);
+    const totalMes = entsMes.length;
+    const concMes = entsMes.filter(e => statusEntregavel(e) === 'concluido').length;
+    const pctMes = pct(totalMes, concMes);
+
+    faseTag.textContent = `✦ Entregas Mensais · ${mes}`;
+    sectionTitle.textContent = `✦ Entregas de ${mes}`;
+    document.getElementById('hero-sub').textContent = 'Setup concluído · agora em entregas mensais recorrentes';
+    document.getElementById('stat-total').textContent = totalMes;
+    document.getElementById('stat-conc').textContent = concMes;
+    document.getElementById('stat-em').textContent = entsMes.filter(e => statusEntregavel(e) === 'em').length;
+    document.getElementById('hero-pct').textContent = pctMes + '%';
+
+    grid.innerHTML = '';
+    if (!monthTasks.length) {
+      grid.innerHTML = `<div class="empty-msg">Nenhuma entrega cadastrada para ${mes} ainda.</div>`;
+    } else {
+      entsMes.forEach((tasks, i) => {
+        const mc = MACRO_COLORS[i % MACRO_COLORS.length];
+        const name = tasks[0].entregavel || 'Geral';
+        const done = tasks.filter(t => (t.status||'').toLowerCase().includes('conclu')).length;
+        const inProg = tasks.filter(t => (t.status||'').toLowerCase().includes('andamento')).length;
+        const p2 = pctWeighted(tasks);
+        grid.innerHTML += `
+          <div class="macro-card" onclick="goToMensaisView()">
+            <div class="mc-num" style="color:${mc.dark}">Entregável</div>
+            <div class="mc-name">${name}</div>
+            <div class="mc-bar-wrap"><div class="mc-bar" style="width:${p2}%;background:${mc.dark}"></div></div>
+            <div class="mc-counts">
+              <span>${done} de ${tasks.length} tarefas concluídas</span>
+              <span class="done" style="color:${mc.dark}">${p2}%</span>
+            </div>
+            ${inProg > 0 ? `<div style="margin-top:8px;font-size:10px;color:#8B6914;background:#FFF3CD;display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700">${inProg} em andamento</div>` : ''}
+          </div>`;
+      });
+    }
+  }
 }
 
 function getGroupedMacros(tasks) {
@@ -516,6 +580,36 @@ function renderMateriais() {
   });
 }
 
+function goToMensaisView() {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-view="mensais"]').classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-mensais').classList.add('active');
+}
+
+// Cards de métricas da marca (aba "metricas": ordem, nome, valor, variacao)
+function renderMetricas() {
+  const wrap = document.getElementById('metric-grid');
+  const title = document.getElementById('metricas-title');
+  const items = D.metricas
+    .filter(m => m.nome && m.valor)
+    .sort((a, b) => (parseFloat(a.ordem) || 0) - (parseFloat(b.ordem) || 0));
+  if (!items.length) { wrap.innerHTML = ''; title.style.display = 'none'; return; }
+  title.style.display = 'block';
+  wrap.innerHTML = items.map(m => {
+    const delta = (m.variacao || '').trim();
+    let deltaClass = 'flat';
+    if (delta.startsWith('+')) deltaClass = 'up';
+    else if (delta.startsWith('-')) deltaClass = 'down';
+    return `
+      <div class="metric-card">
+        <div class="m-label">${m.nome}</div>
+        <div class="m-value">${m.valor}</div>
+        ${delta ? `<div class="m-delta ${deltaClass}">${delta}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
 function toggleMacro(id) {
   const el = document.getElementById(id);
   el.classList.toggle('open');
@@ -549,8 +643,8 @@ async function boot() {
     return;
   }
   try {
-    const [configRows, tarefaRows, mensaisRows, materiaisRows] = await Promise.all([
-      fetchCSV('config'), fetchCSV('setup'), fetchCSV('entregas mensais'), fetchCSV('anexos')
+    const [configRows, tarefaRows, mensaisRows, materiaisRows, metricasRows] = await Promise.all([
+      fetchCSV('config'), fetchCSV('setup'), fetchCSV('entregas mensais'), fetchCSV('anexos'), fetchCSV('metricas')
     ]);
     if (configRows.length) {
       const r = configRows[0];
@@ -559,11 +653,13 @@ async function boot() {
     D.tarefas = tarefaRows.filter(r => r.tarefa);
     D.entregasMensais = mensaisRows.filter(r => r.tarefa);
     D.materiais = materiaisRows.filter(r => r.titulo);
+    D.metricas = metricasRows.filter(r => r.nome);
     document.getElementById('last-update').textContent = 'Atualizado em ' + new Date().toLocaleDateString('pt-BR');
     renderResumo();
     renderCronograma();
     renderEntregasMensais();
     renderMateriais();
+    renderMetricas();
   } catch(e) {
     document.getElementById('hero-sub').textContent = 'Erro ao carregar dados. Verifique se a planilha está pública.';
   }
