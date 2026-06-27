@@ -86,17 +86,67 @@
   details.explainer[open] summary:before{content:"▾ ";}
   details.explainer .info-card{margin-top:8px;}
 
-  /* Day timeline (roteiro do dia da viagem) */
-  .day-timeline{margin-top:8px; display:flex; flex-direction:column; gap:2px;}
-  .day-sep{font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; margin:12px 0 4px;}
-  .day-sep:first-child{margin-top:2px;}
-  .day-item{display:flex; gap:12px; padding:8px 0; border-bottom:1px dashed var(--border);}
-  .day-item:last-child{border-bottom:none;}
-  .day-time{min-width:52px; font-size:13px; font-weight:700; color:var(--fly-txt); text-align:center;}
-  .day-body{flex:1;}
-  .day-evento{font-size:13px; font-weight:600; color:var(--text-1); margin:0 0 2px;}
-  .day-meta{font-size:11.5px; color:var(--text-2); margin:0;}
-  .day-obs{font-size:11.5px; color:var(--text-3); margin:4px 0 0;}
+  /* Tabs */
+  .tabs{display:flex; gap:24px; margin-bottom:20px; border-bottom:1px solid var(--border);}
+  .tab-btn{
+    background:none; border:none; padding:10px 2px; font-size:14px; font-weight:700;
+    color:var(--text-3); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--fly-txt); border-bottom-color:var(--fly-txt);}
+  .tab-view{display:none;}
+  .tab-view.active{display:block;}
+
+  /* Day view (aba O DIA) */
+  .day-header{margin-bottom:22px;}
+  .day-header-date{font-size:20px; font-weight:800; margin:0 0 3px;}
+  .day-header-route{font-size:13px; color:var(--text-2); margin:0;}
+
+  .day-row{display:flex; gap:14px; padding-bottom:22px;}
+  .day-row:last-child{padding-bottom:0;}
+  .day-row-time{min-width:50px; font-size:13.5px; font-weight:800; color:var(--fly-txt); text-align:right; padding-top:3px;}
+  .day-row-rail{position:relative; display:flex; justify-content:center; width:12px; flex-shrink:0;}
+  .day-row-rail::after{content:''; position:absolute; top:16px; bottom:-22px; width:2px; background:var(--border); left:50%; transform:translateX(-50%);}
+  .day-row:last-child .day-row-rail::after{display:none;}
+  .day-row-dot{width:10px; height:10px; border-radius:50%; background:var(--fly); margin-top:5px; box-shadow:0 0 0 4px var(--fly-bg); position:relative; z-index:1;}
+  .day-row-body{flex:1; padding-top:1px;}
+  .day-row-title{font-size:15px; font-weight:700; color:var(--text-1); margin:0 0 3px;}
+  .day-row-obs{font-size:13px; color:var(--text-2); margin:0;}
+
+  .day-extra{margin-top:26px; padding-top:20px; border-top:1px solid var(--border);}
+  .day-extra-title{font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; margin:0 0 12px;}
+  .day-extra-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px;}
+  .day-extra-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px 14px;}
+  .day-extra-label{font-size:12px; font-weight:700; color:var(--text-2); margin:0 0 3px;}
+  .day-extra-value{font-size:14px; font-weight:700; color:var(--text-1); margin:0;}
+
+  /* Vendas view */
+  .vendas-section{margin-top:26px;}
+  .vendas-section-title{font-size:13px; font-weight:700; color:var(--text-1); margin:0 0 12px;}
+  .vendas-summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
+  .vendas-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 18px;}
+  .vendas-card.good{border-color:var(--done); background:var(--done-bg);}
+  .vendas-card-label{font-size:12px; font-weight:700; color:var(--text-2); margin:0 0 4px;}
+  .vendas-card.good .vendas-card-label{color:var(--done-txt);}
+  .vendas-card-total{font-size:24px; font-weight:800; color:var(--text-1); margin:0 0 8px;}
+  .vendas-card.good .vendas-card-total{color:var(--done-txt);}
+  .vendas-card-split{display:flex; gap:16px; font-size:12.5px; color:var(--text-2);}
+  .vendas-card.good .vendas-card-split{color:var(--done-txt);}
+  .vendas-card-sub{font-size:11.5px; color:var(--text-3); margin:8px 0 0;}
+
+  .vendas-desc-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px;}
+  .vendas-desc-item{
+    display:flex; justify-content:space-between; align-items:center; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 14px;
+  }
+  .vendas-desc-cat{font-size:12.5px; font-weight:600; color:var(--text-2);}
+  .vendas-desc-pct{font-size:15px; font-weight:800; color:var(--fly-txt);}
+
+  .vendas-item{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px 14px; margin-bottom:10px;}
+  .vendas-item-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .vendas-item-title{font-size:13.5px; font-weight:700; color:var(--text-1); margin:0;}
+  .vendas-item-prices{display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--text-2); margin-top:4px;}
+  .vendas-item-split{font-size:11.5px; color:var(--text-3); margin-top:6px; padding-top:6px; border-top:1px dashed var(--border);}
+  .vendas-pending{color:var(--text-3); font-style:italic;}
 
   /* Filters */
   .filters{
@@ -210,6 +260,14 @@
     <span class="pet-badge">🇪🇸 Passaporte espanhol (Dany) — em andamento</span>
   </div>
 
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-btn-checklist" data-tab="checklist">📋 Checklist da mudança</button>
+    <button class="tab-btn" id="tab-btn-day" data-tab="day">📅 O DIA</button>
+    <button class="tab-btn" id="tab-btn-vendas" data-tab="vendas">💰 Vendas</button>
+  </div>
+
+  <div class="tab-view active" id="view-checklist">
+
   <div class="progress-card">
     <div class="progress-top">
       <span class="progress-title">Progresso geral da mudança</span>
@@ -218,23 +276,6 @@
     <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
     <p class="progress-sub" id="progress-sub">Carregando dados da planilha…</p>
   </div>
-
-  <details class="explainer">
-    <summary>Como funciona o processo de exportação de Cookie e Louie (clique para entender)</summary>
-    <div class="info-card warn">
-      <p class="info-title">⚠ Prazo crítico — vacina antirrábica</p>
-      <p class="info-desc">A vacina atual vence em <strong>04/08/2026</strong>. A nova dose precisa ser aplicada <strong>antes</strong> dessa data para manter a continuidade. Depois da vacina, é preciso esperar pelo menos <strong>30 dias</strong> para fazer a coleta de sangue (sorologia).</p>
-    </div>
-    <div class="info-card good">
-      <p class="info-title">✓ Linha do tempo até o voo</p>
-      <p class="info-desc">Vacina até 04/08/2026 → coleta de sangue a partir de ~30 dias depois → resultado em ~30 dias → <strong>90 dias de quarentena</strong> contados da coleta → liberados para embarque. Com esse ritmo, a quarentena termina bem antes de 22/02/2027, sobrando uma boa margem de segurança. O CVI (documento final de embarque) só pode ser emitido nos <strong>10 dias</strong> antes do voo — por isso essa etapa aparece na Fase 4, perto da viagem.</p>
-    </div>
-  </details>
-
-  <details class="explainer" id="day-details" style="display:none;">
-    <summary>📋 Roteiro hora a hora do dia da viagem</summary>
-    <div class="day-timeline" id="day-timeline"></div>
-  </details>
 
   <div class="filters">
     <div class="filter-row">
@@ -251,6 +292,46 @@
   <div id="loading">Carregando planilha…</div>
   <div id="error-banner"></div>
   <div id="phases-container"></div>
+
+  </div>
+
+  <div class="tab-view" id="view-day">
+    <div class="day-header">
+      <p class="day-header-date" id="day-header-date">📅 Roteiro do dia da viagem</p>
+      <p class="day-header-route">Viracopos (VCP) → Madrid-Barajas (MAD)</p>
+    </div>
+    <p class="empty-msg" id="day-loading">Carregando roteiro do dia…</p>
+    <p class="empty-msg" id="day-empty" style="display:none;">Ainda não há roteiro cadastrado na aba "O dia" da planilha.</p>
+    <div class="day-timeline-full" id="day-timeline-full"></div>
+    <div class="day-extra" id="day-extra"></div>
+  </div>
+
+  <div class="tab-view" id="view-vendas">
+    <div class="vendas-summary-grid" id="vendas-summary"></div>
+
+    <div class="vendas-section">
+      <p class="vendas-section-title">% médio de desconto por categoria (preço de venda vs. anúncio)</p>
+      <div id="vendas-desconto"></div>
+    </div>
+
+    <div class="vendas-section">
+      <p class="vendas-section-title">Itens para vender</p>
+      <div class="filters">
+        <div class="filter-row">
+          <span class="filter-label">Status</span>
+          <div id="vendas-status-filters"></div>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Dona</span>
+          <div id="vendas-dona-filters" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+          <button class="chip-clear" id="vendas-clear-filters">limpar filtros</button>
+        </div>
+      </div>
+      <p class="empty-msg" id="vendas-loading">Carregando itens…</p>
+      <p class="empty-msg" id="vendas-empty" style="display:none;">Nenhum item cadastrado na aba "Vendas" da planilha.</p>
+      <div id="vendas-list"></div>
+    </div>
+  </div>
 
   <div class="footer">
     <span id="last-updated"></span>
@@ -341,14 +422,16 @@
           return pad(+dtm[4]) + ':' + pad(+dtm[5]);
         }
         const dateStr = pad(day) + '/' + pad(month+1) + '/' + year;
-        return hasTime ? dateStr + ' ' + pad(+dtm[4]) + ':' + pad(+dtm[5]) : dateStr;
+        // se a hora for exatamente 00:00:00, trata como data "pura" (sem hora)
+        const showTime = hasTime && !(+dtm[4] === 0 && +dtm[5] === 0 && (dtm[6] === undefined || +dtm[6] === 0));
+        return showTime ? dateStr + ' ' + pad(+dtm[4]) + ':' + pad(+dtm[5]) : dateStr;
       }
       return v.trim();
     }
     return String(v).trim();
   }
 
-  function parseGvizText(text){
+  function parseGvizText(text, keepNumeric){
     const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
     if(!match) throw new Error('NOPARSE');
     const json = JSON.parse(match[1]);
@@ -359,19 +442,23 @@
     return (json.table.rows || []).map(r => {
       const obj = {};
       cols.forEach((name, i) => {
+        if(!name) return; // ignora colunas extras sem cabeçalho
         const cell = r.c && r.c[i];
+        // mantém number cru (não formatado em string) quando keepNumeric=true,
+        // útil pra colunas de valor monetário que a gente precisa somar/multiplicar
+        if(keepNumeric && cell && typeof cell.v === 'number'){ obj[name] = cell.v; return; }
         obj[name] = formatGvizValue(cell);
       });
       return obj;
     });
   }
 
-  async function fetchGviz(extraParam){
+  async function fetchGviz(extraParam, keepNumeric){
     const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&headers=1' + (extraParam || '') + '&t=' + Date.now();
     const res = await fetch(url, {cache:'no-store'});
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
-    return parseGvizText(text);
+    return parseGvizText(text, keepNumeric);
   }
 
   async function fetchSheet(){
@@ -549,11 +636,21 @@
   }
 
   async function loadDayTimeline(){
+    const loadingEl = document.getElementById('day-loading');
+    const emptyEl = document.getElementById('day-empty');
+    const timelineBox = document.getElementById('day-timeline-full');
+    const extraBox = document.getElementById('day-extra');
+    loadingEl.style.display = 'block';
+    loadingEl.textContent = 'Carregando roteiro do dia…';
+    emptyEl.style.display = 'none';
+    timelineBox.innerHTML = '';
+    extraBox.innerHTML = '';
     try{
       const rows = await fetchGviz('&sheet=' + encodeURIComponent('O dia'));
       const clean = rows.filter(r => r['item']);
+      loadingEl.style.display = 'none';
       if(!clean.length){
-        document.getElementById('day-details').style.display = 'none';
+        emptyEl.style.display = 'block';
         return;
       }
       const isTime = v => /^\d{1,2}:\d{2}$/.test((v || '').trim());
@@ -567,49 +664,237 @@
         if(isTime(r['info'])) timelineRows.push(r);
         else infoRows.push(r);
       });
-      timelineRows.sort((a,b) => a['info'].localeCompare(b['info']));
+      // Não ordena por horário: a ordem das linhas na planilha já é a ordem
+      // cronológica real do dia (inclui virada de madrugada em voos noturnos,
+      // onde "11:10" de chegada vem DEPOIS de "20:55" de embarque).
 
-      const summaryEl = document.querySelector('#day-details summary');
-      summaryEl.textContent = dateLabel ? ('📅 Roteiro do dia da viagem — ' + dateLabel) : '📅 Roteiro do dia da viagem';
-
-      const box = document.getElementById('day-timeline');
-      box.innerHTML = '';
+      document.getElementById('day-header-date').textContent =
+        dateLabel ? ('📅 Roteiro do dia da viagem — ' + dateLabel) : '📅 Roteiro do dia da viagem';
 
       timelineRows.forEach(r => {
         const label = r['item'].replace(/:\s*$/,'').trim();
         const row = document.createElement('div');
-        row.className = 'day-item';
+        row.className = 'day-row';
         row.innerHTML =
-          '<div class="day-time">' + r['info'] + '</div>' +
-          '<div class="day-body">' +
-            '<p class="day-evento">' + dayIcon(r['item']) + ' ' + label + '</p>' +
-            (r['obs'] ? '<p class="day-meta">' + r['obs'] + '</p>' : '') +
+          '<div class="day-row-time">' + r['info'] + '</div>' +
+          '<div class="day-row-rail"><div class="day-row-dot"></div></div>' +
+          '<div class="day-row-body">' +
+            '<p class="day-row-title">' + dayIcon(r['item']) + ' ' + label + '</p>' +
+            (r['obs'] ? '<p class="day-row-obs">' + r['obs'] + '</p>' : '') +
           '</div>';
-        box.appendChild(row);
+        timelineBox.appendChild(row);
       });
 
       if(infoRows.length){
-        const sep = document.createElement('div');
-        sep.className = 'day-sep';
-        sep.textContent = 'Outras informações';
-        box.appendChild(sep);
+        const title = document.createElement('p');
+        title.className = 'day-extra-title';
+        title.textContent = 'Outras informações';
+        extraBox.appendChild(title);
+        const grid = document.createElement('div');
+        grid.className = 'day-extra-grid';
         infoRows.forEach(r => {
           const label = r['item'].replace(/:\s*$/,'').trim();
-          const row = document.createElement('div');
-          row.className = 'day-item';
-          row.innerHTML =
-            '<div class="day-time">' + dayIcon(r['item']) + '</div>' +
-            '<div class="day-body">' +
-              '<p class="day-evento">' + label + ': ' + (r['info'] || '') + '</p>' +
-              (r['obs'] ? '<p class="day-meta">' + r['obs'] + '</p>' : '') +
-            '</div>';
-          box.appendChild(row);
+          const card = document.createElement('div');
+          card.className = 'day-extra-card';
+          card.innerHTML =
+            '<p class="day-extra-label">' + dayIcon(r['item']) + ' ' + label + '</p>' +
+            '<p class="day-extra-value">' + (r['info'] || '') + '</p>' +
+            (r['obs'] ? '<p class="day-row-obs" style="margin-top:4px;">' + r['obs'] + '</p>' : '');
+          grid.appendChild(card);
         });
+        extraBox.appendChild(grid);
       }
-
-      document.getElementById('day-details').style.display = 'block';
     }catch(e){
-      document.getElementById('day-details').style.display = 'none';
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'Não consegui carregar o roteiro do dia (verifique se a aba "O dia" existe na planilha).';
+    }
+  }
+
+  // Regra de divisão do valor de venda entre Laís e Dany, conforme a "Dona" do item:
+  // - Laís: 100% pra Laís
+  // - Ambos: 50% / 50%
+  // - Dany: 20% pra Laís (comissão de venda) / 80% pra Dany
+  function ownerSplit(dona, valor){
+    if(typeof valor !== 'number') return null;
+    const d = stripAccents(dona);
+    if(d === 'lais') return {lais: valor, dany: 0};
+    if(d === 'dany') return {lais: valor*0.2, dany: valor*0.8};
+    if(d === 'ambos') return {lais: valor*0.5, dany: valor*0.5};
+    return {lais: 0, dany: 0};
+  }
+
+  function fmtMoney(v){
+    return 'R$ ' + (v || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  async function fetchVendasRows(){
+    const rows = await fetchGviz('&sheet=' + encodeURIComponent('Vendas'), true);
+    return rows.filter(r => r['item']);
+  }
+
+  function vendasStatusVisual(status){
+    const s = stripAccents(status);
+    if(s === 'vendido') return {cls:'status-done'};
+    if(s === 'anunciado') return {cls:'status-soon'};
+    return {cls:'status-neutral'};
+  }
+
+  let vendasRows = [];
+  let vendasStatus = null;
+  let vendasDona = null;
+
+  function buildVendasFilters(rows){
+    const statuses = [];
+    rows.forEach(r => { if(r.status && !statuses.includes(r.status)) statuses.push(r.status); });
+    const donas = [];
+    rows.forEach(r => { const d = (r.dona||'').trim(); if(d && !donas.includes(d)) donas.push(d); });
+
+    const statusBox = document.getElementById('vendas-status-filters');
+    statusBox.innerHTML = '';
+    statuses.forEach(s => {
+      const el = document.createElement('button');
+      el.className = 'chip';
+      el.textContent = s;
+      el.dataset.status = s;
+      el.onclick = () => { vendasStatus = (vendasStatus === s) ? null : s; renderVendas(); };
+      statusBox.appendChild(el);
+    });
+
+    const donaBox = document.getElementById('vendas-dona-filters');
+    donaBox.innerHTML = '';
+    donas.forEach(d => {
+      const el = document.createElement('button');
+      el.className = 'chip';
+      el.textContent = d;
+      el.dataset.dona = d;
+      el.onclick = () => { vendasDona = (vendasDona === d) ? null : d; renderVendas(); };
+      donaBox.appendChild(el);
+    });
+  }
+
+  function renderVendas(){
+    // projeção com base no preço anunciado (todos os itens) x realizado com base no preço de venda (só vendidos)
+    let projLais = 0, projDany = 0, projTotal = 0;
+    let realLais = 0, realDany = 0, realTotal = 0;
+    let countVendido = 0;
+    const catStats = {};
+
+    vendasRows.forEach(r => {
+      const anuncio = r['preco anuncio'];
+      const venda = r['preco venda'];
+      const dona = r['dona'];
+
+      const spAnuncio = ownerSplit(dona, anuncio);
+      if(spAnuncio){ projLais += spAnuncio.lais; projDany += spAnuncio.dany; projTotal += anuncio; }
+
+      if(typeof venda === 'number'){
+        countVendido++;
+        const spVenda = ownerSplit(dona, venda);
+        if(spVenda){ realLais += spVenda.lais; realDany += spVenda.dany; realTotal += venda; }
+        if(typeof anuncio === 'number' && anuncio > 0){
+          const cat = r['categoria'] || 'Sem categoria';
+          if(!catStats[cat]) catStats[cat] = {sumPct:0, n:0};
+          catStats[cat].sumPct += (anuncio - venda) / anuncio;
+          catStats[cat].n++;
+        }
+      }
+    });
+
+    document.getElementById('vendas-summary').innerHTML =
+      '<div class="vendas-card">' +
+        '<p class="vendas-card-label">📋 Projeção pelo anúncio</p>' +
+        '<p class="vendas-card-total">' + fmtMoney(projTotal) + '</p>' +
+        '<div class="vendas-card-split">' +
+          '<span>Laís: <strong>' + fmtMoney(projLais) + '</strong></span>' +
+          '<span>Dany: <strong>' + fmtMoney(projDany) + '</strong></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vendas-card good">' +
+        '<p class="vendas-card-label">✅ Realizado (já vendido)</p>' +
+        '<p class="vendas-card-total">' + fmtMoney(realTotal) + '</p>' +
+        '<div class="vendas-card-split">' +
+          '<span>Laís: <strong>' + fmtMoney(realLais) + '</strong></span>' +
+          '<span>Dany: <strong>' + fmtMoney(realDany) + '</strong></span>' +
+        '</div>' +
+        '<p class="vendas-card-sub">' + countVendido + ' de ' + vendasRows.length + ' itens vendidos</p>' +
+      '</div>';
+
+    const descBox = document.getElementById('vendas-desconto');
+    const cats = Object.keys(catStats);
+    if(!cats.length){
+      descBox.innerHTML = '<p class="empty-msg">Ainda não há itens vendidos pra calcular o desconto médio.</p>';
+    }else{
+      descBox.innerHTML = '<div class="vendas-desc-grid">' +
+        cats.map(cat => {
+          const avg = (catStats[cat].sumPct / catStats[cat].n) * 100;
+          const icon = CATEGORY_ICONS[stripAccents(cat)] || '📌';
+          return '<div class="vendas-desc-item">' +
+            '<span class="vendas-desc-cat">' + icon + ' ' + cat + '</span>' +
+            '<span class="vendas-desc-pct">' + avg.toFixed(0) + '%</span>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
+
+    let items = vendasRows.slice();
+    if(vendasStatus) items = items.filter(r => r.status === vendasStatus);
+    if(vendasDona) items = items.filter(r => (r.dona||'').trim() === vendasDona);
+
+    const listBox = document.getElementById('vendas-list');
+    listBox.innerHTML = '';
+    if(!items.length){
+      listBox.innerHTML = '<p class="empty-msg">Nenhum item encontrado com esses filtros.</p>';
+    }else{
+      items.forEach(r => {
+        const vis = vendasStatusVisual(r.status);
+        const anuncio = r['preco anuncio'];
+        const venda = r['preco venda'];
+        const sp = ownerSplit(r.dona, typeof venda === 'number' ? venda : anuncio);
+        const card = document.createElement('div');
+        card.className = 'vendas-item';
+        card.innerHTML =
+          '<div class="vendas-item-top">' +
+            '<p class="vendas-item-title">' + r.item + '</p>' +
+            '<span class="tag ' + vis.cls + '">' + r.status + '</span>' +
+          '</div>' +
+          '<div class="task-tags" style="margin:6px 0;">' +
+            '<span class="tag cat">' + (CATEGORY_ICONS[stripAccents(r.categoria)] || '📌') + ' ' + r.categoria + '</span>' +
+            (r.dona ? '<span class="tag who">' + r.dona.trim() + '</span>' : '') +
+          '</div>' +
+          '<div class="vendas-item-prices">' +
+            (typeof anuncio === 'number' ? '<span>Anúncio: <strong>' + fmtMoney(anuncio) + '</strong></span>' : '') +
+            (typeof venda === 'number' ? '<span>Venda: <strong>' + fmtMoney(venda) + '</strong></span>' : '<span class="vendas-pending">ainda não vendido</span>') +
+          '</div>' +
+          (sp ? '<p class="vendas-item-split">Laís: ' + fmtMoney(sp.lais) + ' · Dany: ' + fmtMoney(sp.dany) + (typeof venda !== 'number' ? ' (projeção pelo anúncio)' : '') + '</p>' : '');
+        listBox.appendChild(card);
+      });
+    }
+
+    document.querySelectorAll('#vendas-status-filters .chip').forEach(el => {
+      el.classList.toggle('active', el.dataset.status === vendasStatus);
+    });
+    document.querySelectorAll('#vendas-dona-filters .chip').forEach(el => {
+      el.classList.toggle('active', el.dataset.dona === vendasDona);
+    });
+  }
+
+  async function loadVendas(){
+    const loadingEl = document.getElementById('vendas-loading');
+    const emptyEl = document.getElementById('vendas-empty');
+    loadingEl.style.display = 'block';
+    loadingEl.textContent = 'Carregando itens…';
+    emptyEl.style.display = 'none';
+    try{
+      vendasRows = await fetchVendasRows();
+      loadingEl.style.display = 'none';
+      if(!vendasRows.length){ emptyEl.style.display = 'block'; return; }
+      buildVendasFilters(vendasRows);
+      renderVendas();
+    }catch(e){
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'Não consegui carregar a aba "Vendas" da planilha.';
     }
   }
 
@@ -624,10 +909,21 @@
       showError(err.message || String(err));
     }
     loadDayTimeline();
+    loadVendas();
   }
 
   document.getElementById('clear-filters').onclick = () => { activeCat = null; activeWho = null; render(); };
   document.getElementById('refresh-btn').onclick = load;
+  document.getElementById('vendas-clear-filters').onclick = () => { vendasStatus = null; vendasDona = null; renderVendas(); };
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('view-' + btn.dataset.tab).classList.add('active');
+    };
+  });
 
   load();
   setInterval(updateCountdown, 60*60*1000);
