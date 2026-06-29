@@ -119,6 +119,35 @@
   .day-extra-label{font-size:12px; font-weight:700; color:var(--text-2); margin:0 0 3px;}
   .day-extra-value{font-size:14px; font-weight:700; color:var(--text-1); margin:0;}
 
+  /* Vendas view */
+  .vendas-section{margin-top:26px;}
+  .vendas-section-title{font-size:13px; font-weight:700; color:var(--text-1); margin:0 0 12px;}
+  .vendas-summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
+  .vendas-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 18px;}
+  .vendas-card.good{border-color:var(--done); background:var(--done-bg);}
+  .vendas-card-label{font-size:12px; font-weight:700; color:var(--text-2); margin:0 0 4px;}
+  .vendas-card.good .vendas-card-label{color:var(--done-txt);}
+  .vendas-card-total{font-size:24px; font-weight:800; color:var(--text-1); margin:0 0 8px;}
+  .vendas-card.good .vendas-card-total{color:var(--done-txt);}
+  .vendas-card-split{display:flex; gap:16px; font-size:12.5px; color:var(--text-2);}
+  .vendas-card.good .vendas-card-split{color:var(--done-txt);}
+  .vendas-card-sub{font-size:11.5px; color:var(--text-3); margin:8px 0 0;}
+
+  .vendas-desc-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px;}
+  .vendas-desc-item{
+    display:flex; justify-content:space-between; align-items:center; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 14px;
+  }
+  .vendas-desc-cat{font-size:12.5px; font-weight:600; color:var(--text-2);}
+  .vendas-desc-pct{font-size:15px; font-weight:800; color:var(--fly-txt);}
+
+  .vendas-item{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px 14px; margin-bottom:10px;}
+  .vendas-item-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .vendas-item-title{font-size:13.5px; font-weight:700; color:var(--text-1); margin:0;}
+  .vendas-item-prices{display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--text-2); margin-top:4px;}
+  .vendas-item-split{font-size:11.5px; color:var(--text-3); margin-top:6px; padding-top:6px; border-top:1px dashed var(--border);}
+  .vendas-pending{color:var(--text-3); font-style:italic;}
+
   /* Filters */
   .filters{
     background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
@@ -234,6 +263,7 @@
   <div class="tabs">
     <button class="tab-btn active" id="tab-btn-checklist" data-tab="checklist">📋 Checklist da mudança</button>
     <button class="tab-btn" id="tab-btn-day" data-tab="day">📅 O DIA</button>
+    <button class="tab-btn" id="tab-btn-vendas" data-tab="vendas">💰 Vendas</button>
   </div>
 
   <div class="tab-view active" id="view-checklist">
@@ -274,6 +304,33 @@
     <p class="empty-msg" id="day-empty" style="display:none;">Ainda não há roteiro cadastrado na aba "O dia" da planilha.</p>
     <div class="day-timeline-full" id="day-timeline-full"></div>
     <div class="day-extra" id="day-extra"></div>
+  </div>
+
+  <div class="tab-view" id="view-vendas">
+    <div class="vendas-summary-grid" id="vendas-summary"></div>
+
+    <div class="vendas-section">
+      <p class="vendas-section-title">% médio de desconto por categoria (preço de venda vs. anúncio)</p>
+      <div id="vendas-desconto"></div>
+    </div>
+
+    <div class="vendas-section">
+      <p class="vendas-section-title">Itens para vender</p>
+      <div class="filters">
+        <div class="filter-row">
+          <span class="filter-label">Status</span>
+          <div id="vendas-status-filters"></div>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Dona</span>
+          <div id="vendas-dona-filters" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+          <button class="chip-clear" id="vendas-clear-filters">limpar filtros</button>
+        </div>
+      </div>
+      <p class="empty-msg" id="vendas-loading">Carregando itens…</p>
+      <p class="empty-msg" id="vendas-empty" style="display:none;">Nenhum item cadastrado na aba "Vendas" da planilha.</p>
+      <div id="vendas-list"></div>
+    </div>
   </div>
 
   <div class="footer">
@@ -374,7 +431,7 @@
     return String(v).trim();
   }
 
-  function parseGvizText(text){
+  function parseGvizText(text, keepNumeric){
     const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
     if(!match) throw new Error('NOPARSE');
     const json = JSON.parse(match[1]);
@@ -385,19 +442,23 @@
     return (json.table.rows || []).map(r => {
       const obj = {};
       cols.forEach((name, i) => {
+        if(!name) return; // ignora colunas extras sem cabeçalho
         const cell = r.c && r.c[i];
+        // mantém number cru (não formatado em string) quando keepNumeric=true,
+        // útil pra colunas de valor monetário que a gente precisa somar/multiplicar
+        if(keepNumeric && cell && typeof cell.v === 'number'){ obj[name] = cell.v; return; }
         obj[name] = formatGvizValue(cell);
       });
       return obj;
     });
   }
 
-  async function fetchGviz(extraParam){
+  async function fetchGviz(extraParam, keepNumeric){
     const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&headers=1' + (extraParam || '') + '&t=' + Date.now();
     const res = await fetch(url, {cache:'no-store'});
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
-    return parseGvizText(text);
+    return parseGvizText(text, keepNumeric);
   }
 
   async function fetchSheet(){
@@ -650,6 +711,193 @@
     }
   }
 
+  // Regra de divisão do valor de venda entre Laís e Dany, conforme a "Dona" do item:
+  // - Laís: 100% pra Laís
+  // - Ambos: 50% / 50%
+  // - Dany: 20% pra Laís (comissão de venda) / 80% pra Dany
+  function ownerSplit(dona, valor){
+    if(typeof valor !== 'number') return null;
+    const d = stripAccents(dona);
+    if(d === 'lais') return {lais: valor, dany: 0};
+    if(d === 'dany') return {lais: valor*0.2, dany: valor*0.8};
+    if(d === 'ambos') return {lais: valor*0.5, dany: valor*0.5};
+    return {lais: 0, dany: 0};
+  }
+
+  function fmtMoney(v){
+    return 'R$ ' + (v || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  async function fetchVendasRows(){
+    const rows = await fetchGviz('&sheet=' + encodeURIComponent('Vendas'), true);
+    return rows.filter(r => r['item']);
+  }
+
+  function vendasStatusVisual(status){
+    const s = stripAccents(status);
+    if(s === 'vendido') return {cls:'status-done'};
+    if(s === 'anunciado') return {cls:'status-soon'};
+    return {cls:'status-neutral'};
+  }
+
+  let vendasRows = [];
+  let vendasStatus = null;
+  let vendasDona = null;
+
+  function buildVendasFilters(rows){
+    const statuses = [];
+    rows.forEach(r => { if(r.status && !statuses.includes(r.status)) statuses.push(r.status); });
+    const donas = [];
+    rows.forEach(r => { const d = (r.dona||'').trim(); if(d && !donas.includes(d)) donas.push(d); });
+
+    const statusBox = document.getElementById('vendas-status-filters');
+    statusBox.innerHTML = '';
+    statuses.forEach(s => {
+      const el = document.createElement('button');
+      el.className = 'chip';
+      el.textContent = s;
+      el.dataset.status = s;
+      el.onclick = () => { vendasStatus = (vendasStatus === s) ? null : s; renderVendas(); };
+      statusBox.appendChild(el);
+    });
+
+    const donaBox = document.getElementById('vendas-dona-filters');
+    donaBox.innerHTML = '';
+    donas.forEach(d => {
+      const el = document.createElement('button');
+      el.className = 'chip';
+      el.textContent = d;
+      el.dataset.dona = d;
+      el.onclick = () => { vendasDona = (vendasDona === d) ? null : d; renderVendas(); };
+      donaBox.appendChild(el);
+    });
+  }
+
+  function renderVendas(){
+    // projeção com base no preço anunciado (todos os itens) x realizado com base no preço de venda (só vendidos)
+    let projLais = 0, projDany = 0, projTotal = 0;
+    let realLais = 0, realDany = 0, realTotal = 0;
+    let countVendido = 0;
+    const catStats = {};
+
+    vendasRows.forEach(r => {
+      const anuncio = r['preco anuncio'];
+      const venda = r['preco venda'];
+      const dona = r['dona'];
+
+      const spAnuncio = ownerSplit(dona, anuncio);
+      if(spAnuncio){ projLais += spAnuncio.lais; projDany += spAnuncio.dany; projTotal += anuncio; }
+
+      if(typeof venda === 'number'){
+        countVendido++;
+        const spVenda = ownerSplit(dona, venda);
+        if(spVenda){ realLais += spVenda.lais; realDany += spVenda.dany; realTotal += venda; }
+        if(typeof anuncio === 'number' && anuncio > 0){
+          const cat = r['categoria'] || 'Sem categoria';
+          if(!catStats[cat]) catStats[cat] = {sumPct:0, n:0};
+          catStats[cat].sumPct += (anuncio - venda) / anuncio;
+          catStats[cat].n++;
+        }
+      }
+    });
+
+    document.getElementById('vendas-summary').innerHTML =
+      '<div class="vendas-card">' +
+        '<p class="vendas-card-label">📋 Projeção pelo anúncio</p>' +
+        '<p class="vendas-card-total">' + fmtMoney(projTotal) + '</p>' +
+        '<div class="vendas-card-split">' +
+          '<span>Laís: <strong>' + fmtMoney(projLais) + '</strong></span>' +
+          '<span>Dany: <strong>' + fmtMoney(projDany) + '</strong></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vendas-card good">' +
+        '<p class="vendas-card-label">✅ Realizado (já vendido)</p>' +
+        '<p class="vendas-card-total">' + fmtMoney(realTotal) + '</p>' +
+        '<div class="vendas-card-split">' +
+          '<span>Laís: <strong>' + fmtMoney(realLais) + '</strong></span>' +
+          '<span>Dany: <strong>' + fmtMoney(realDany) + '</strong></span>' +
+        '</div>' +
+        '<p class="vendas-card-sub">' + countVendido + ' de ' + vendasRows.length + ' itens vendidos</p>' +
+      '</div>';
+
+    const descBox = document.getElementById('vendas-desconto');
+    const cats = Object.keys(catStats);
+    if(!cats.length){
+      descBox.innerHTML = '<p class="empty-msg">Ainda não há itens vendidos pra calcular o desconto médio.</p>';
+    }else{
+      descBox.innerHTML = '<div class="vendas-desc-grid">' +
+        cats.map(cat => {
+          const avg = (catStats[cat].sumPct / catStats[cat].n) * 100;
+          const icon = CATEGORY_ICONS[stripAccents(cat)] || '📌';
+          return '<div class="vendas-desc-item">' +
+            '<span class="vendas-desc-cat">' + icon + ' ' + cat + '</span>' +
+            '<span class="vendas-desc-pct">' + avg.toFixed(0) + '%</span>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
+
+    let items = vendasRows.slice();
+    if(vendasStatus) items = items.filter(r => r.status === vendasStatus);
+    if(vendasDona) items = items.filter(r => (r.dona||'').trim() === vendasDona);
+
+    const listBox = document.getElementById('vendas-list');
+    listBox.innerHTML = '';
+    if(!items.length){
+      listBox.innerHTML = '<p class="empty-msg">Nenhum item encontrado com esses filtros.</p>';
+    }else{
+      items.forEach(r => {
+        const vis = vendasStatusVisual(r.status);
+        const anuncio = r['preco anuncio'];
+        const venda = r['preco venda'];
+        const sp = ownerSplit(r.dona, typeof venda === 'number' ? venda : anuncio);
+        const card = document.createElement('div');
+        card.className = 'vendas-item';
+        card.innerHTML =
+          '<div class="vendas-item-top">' +
+            '<p class="vendas-item-title">' + r.item + '</p>' +
+            '<span class="tag ' + vis.cls + '">' + r.status + '</span>' +
+          '</div>' +
+          '<div class="task-tags" style="margin:6px 0;">' +
+            '<span class="tag cat">' + (CATEGORY_ICONS[stripAccents(r.categoria)] || '📌') + ' ' + r.categoria + '</span>' +
+            (r.dona ? '<span class="tag who">' + r.dona.trim() + '</span>' : '') +
+          '</div>' +
+          '<div class="vendas-item-prices">' +
+            (typeof anuncio === 'number' ? '<span>Anúncio: <strong>' + fmtMoney(anuncio) + '</strong></span>' : '') +
+            (typeof venda === 'number' ? '<span>Venda: <strong>' + fmtMoney(venda) + '</strong></span>' : '<span class="vendas-pending">ainda não vendido</span>') +
+          '</div>' +
+          (sp ? '<p class="vendas-item-split">Laís: ' + fmtMoney(sp.lais) + ' · Dany: ' + fmtMoney(sp.dany) + (typeof venda !== 'number' ? ' (projeção pelo anúncio)' : '') + '</p>' : '');
+        listBox.appendChild(card);
+      });
+    }
+
+    document.querySelectorAll('#vendas-status-filters .chip').forEach(el => {
+      el.classList.toggle('active', el.dataset.status === vendasStatus);
+    });
+    document.querySelectorAll('#vendas-dona-filters .chip').forEach(el => {
+      el.classList.toggle('active', el.dataset.dona === vendasDona);
+    });
+  }
+
+  async function loadVendas(){
+    const loadingEl = document.getElementById('vendas-loading');
+    const emptyEl = document.getElementById('vendas-empty');
+    loadingEl.style.display = 'block';
+    loadingEl.textContent = 'Carregando itens…';
+    emptyEl.style.display = 'none';
+    try{
+      vendasRows = await fetchVendasRows();
+      loadingEl.style.display = 'none';
+      if(!vendasRows.length){ emptyEl.style.display = 'block'; return; }
+      buildVendasFilters(vendasRows);
+      renderVendas();
+    }catch(e){
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'Não consegui carregar a aba "Vendas" da planilha.';
+    }
+  }
+
   async function load(){
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error-banner').style.display = 'none';
@@ -661,10 +909,12 @@
       showError(err.message || String(err));
     }
     loadDayTimeline();
+    loadVendas();
   }
 
   document.getElementById('clear-filters').onclick = () => { activeCat = null; activeWho = null; render(); };
   document.getElementById('refresh-btn').onclick = load;
+  document.getElementById('vendas-clear-filters').onclick = () => { vendasStatus = null; vendasDona = null; renderVendas(); };
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.onclick = () => {
