@@ -321,7 +321,7 @@
 </div>
 
 <script>
-const SHEET_ID = new URLSearchParams(location.search).get('sheet') || '1hATe94mNZ0AEH6kIsUL4irxCAx0FE2pNsAvrQmtW3dI';
+const SHEET_ID = new URLSearchParams(location.search).get('sheet') || '';
 const MACRO_COLORS = [
   {dark:'#2E6B52', light:'#D4EAE0'},
   {dark:'#7A5230', light:'#EAD9C8'},
@@ -466,15 +466,19 @@ function renderResumo() {
     });
   });
 
-  // ── Entregas mensais do mês atual ──
+  // ── Entregas mensais: mês atual + pendentes de meses anteriores ──
   const mes = currentMonthName();
-  const monthTasks = D.entregasMensais.filter(t => (t.macro_nome || t.macro_num || '').trim().toLowerCase() === mes.toLowerCase());
+  const monthTasks = D.entregasMensais.filter(t => {
+    const nomeMes = (t.macro_nome || t.macro_num || '').trim().toLowerCase();
+    const status = (t.status || '').toLowerCase();
+    return nomeMes === mes.toLowerCase() || !status.includes('conclu');
+  });
   const entsMes = entregaveisDoMacro(monthTasks);
   const totalMes = entsMes.length;
   const concMes = entsMes.filter(e => statusEntregavel(e) === 'concluido').length;
   const pctMes = pct(totalMes, concMes);
   document.getElementById('journey-mensal-label').textContent = totalMes > 0 ? `Entregas mensais · ${pctMes}%` : 'Entregas mensais · recorrente';
-  document.getElementById('mensal-resumo-title').textContent = `✦ Entregas de ${mes}`;
+  document.getElementById('mensal-resumo-title').textContent = '✦ Entregas do mês';
 
   const mensalGrid = document.getElementById('mensal-resumo-grid');
   mensalGrid.innerHTML = '';
