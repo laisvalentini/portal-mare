@@ -125,6 +125,13 @@
   .vendas-summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
   .vendas-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 18px;}
   .vendas-card.good{border-color:var(--done); background:var(--done-bg);}
+  .vendas-card.acerto{border-color:var(--soon); background:var(--soon-bg);}
+  .vendas-card.acerto .vendas-card-label{color:var(--soon-txt);}
+  .vendas-card.acerto .vendas-card-total{color:var(--soon-txt);}
+  .vendas-acerto-row{display:flex; align-items:center; gap:8px; font-size:12.5px; margin:6px 0 0;}
+  .vendas-acerto-row .arrow{color:var(--soon); font-weight:700;}
+  .vendas-transfer{font-size:11px; color:#fff; background:var(--soon); border-radius:4px; padding:2px 7px; margin-top:6px; display:inline-block;}
+  .vendas-transfer.ok{background:var(--done);}
   .vendas-card-label{font-size:12px; font-weight:700; color:var(--text-2); margin:0 0 4px;}
   .vendas-card.good .vendas-card-label{color:var(--done-txt);}
   .vendas-card-total{font-size:24px; font-weight:800; color:var(--text-1); margin:0 0 8px;}
@@ -308,6 +315,10 @@
 
   <div class="tab-view" id="view-vendas">
     <div class="vendas-summary-grid" id="vendas-summary"></div>
+    <div class="vendas-section" id="vendas-acertos-section" style="display:none;">
+      <p class="vendas-section-title">💸 Acertos entre Laís e Dany</p>
+      <div class="vendas-summary-grid" id="vendas-acertos"></div>
+    </div>
 
     <div class="vendas-section">
       <p class="vendas-section-title">% médio de desconto por categoria (preço de venda vs. anúncio)</p>
@@ -375,7 +386,7 @@
 
   function parsePrazo(raw){
     if(!raw) return Infinity;
-    const dmy = String(raw).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    const dmy = String(raw).match(/(\d{1,2})\.(\d{1,2})\/(\d{4})/);
     if(dmy) return new Date(+dmy[3], +dmy[2]-1, +dmy[1]).getTime();
     const yearMatch = String(raw).match(/(\d{4})/);
     if(!yearMatch) return Infinity;
@@ -713,8 +724,8 @@
 
   // Regra de divisão do valor de venda entre Laís e Dany, conforme a "Dona" do item:
   // - Laís: 100% pra Laís
-  // - Ambos: 50% / 50%
   // - Dany: 100% pra Dany
+  // - Ambos: 50% / 50%
   function ownerSplit(dona, valor){
     if(typeof valor !== 'number') return null;
     const d = stripAccents(dona);
@@ -722,6 +733,23 @@
     if(d === 'dany') return {lais: 0, dany: valor};
     if(d === 'ambos') return {lais: valor*0.5, dany: valor*0.5};
     return {lais: 0, dany: 0};
+  }
+
+  // Calcula transferência necessária: quem recebeu vs. quem deveria receber
+  // Ex: Dona=Dany mas Recebimento=Laís → Laís deve transferir 100% pra Dany
+  function calcTransfer(dona, recebimento, valor){
+    if(typeof valor !== 'number' || !recebimento) return null;
+    const d = stripAccents(dona || '');
+    const r = stripAccents(recebimento || '');
+    if(!d || !r) return null;
+    let laisParte = 0, danyParte = 0;
+    if(d === 'lais'){ laisParte = valor; danyParte = 0; }
+    else if(d === 'dany'){ laisParte = 0; danyParte = valor; }
+    else if(d === 'ambos'){ laisParte = valor*0.5; danyParte = valor*0.5; }
+    else return null;
+    if(r === 'lais' && danyParte > 0) return {de:'Laís', para:'Dany', valor:danyParte};
+    if(r === 'dany' && laisParte > 0) return {de:'Dany', para:'Laís', valor:laisParte};
+    return null; // sem transferência necessária
   }
 
   function fmtMoney(v){
@@ -779,11 +807,15 @@
     let realLais = 0, realDany = 0, realTotal = 0;
     let countVendido = 0;
     const catStats = {};
+    // acertos: transferências necessárias
+    let laisDeveDany = 0, danyDeveLais = 0;
+    const acertoItems = [];
 
     vendasRows.forEach(r => {
       const anuncio = r['preco anuncio'];
       const venda = r['preco venda'];
       const dona = r['dona'];
+      const recebimento = r['recebimento'];
 
       const spAnuncio = ownerSplit(dona, anuncio);
       if(spAnuncio){ projLais += spAnuncio.lais; projDany += spAnuncio.dany; projTotal += anuncio; }
@@ -797,6 +829,13 @@
           if(!catStats[cat]) catStats[cat] = {sumPct:0, n:0};
           catStats[cat].sumPct += (anuncio - venda) / anuncio;
           catStats[cat].n++;
+        }
+        // calcular transferência necessária
+        const tr = calcTransfer(dona, recebimento, venda);
+        if(tr){
+          if(tr.de === 'Laís') laisDeveDany += tr.valor;
+          else danyDeveLais += tr.valor;
+          acertoItems.push({item: r.item, ...tr});
         }
       }
     });
@@ -819,6 +858,45 @@
         '</div>' +
         '<p class="vendas-card-sub">' + countVendido + ' de ' + vendasRows.length + ' itens vendidos</p>' +
       '</div>';
+
+    // Seção de acertos
+    const acertosSection = document.getElementById('vendas-acertos-section');
+    const acertosBox = document.getElementById('vendas-acertos');
+    const netLaisDany = laisDeveDany - danyDeveLais;
+    if(acertoItems.length === 0){
+      acertosSection.style.display = 'none';
+    } else {
+      acertosSection.style.display = '';
+      let netCard = '';
+      if(netLaisDany > 0){
+        netCard = '<div class="vendas-card acerto">' +
+          '<p class="vendas-card-label">💸 Saldo líquido</p>' +
+          '<p class="vendas-card-total">' + fmtMoney(netLaisDany) + '</p>' +
+          '<div class="vendas-acerto-row"><span>Laís</span><span class="arrow">→</span><span>Dany</span></div>' +
+          '<span class="vendas-transfer">Laís deve transferir ' + fmtMoney(netLaisDany) + ' pra Dany</span>' +
+        '</div>';
+      } else if(netLaisDany < 0){
+        netCard = '<div class="vendas-card acerto">' +
+          '<p class="vendas-card-label">💸 Saldo líquido</p>' +
+          '<p class="vendas-card-total">' + fmtMoney(-netLaisDany) + '</p>' +
+          '<div class="vendas-acerto-row"><span>Dany</span><span class="arrow">→</span><span>Laís</span></div>' +
+          '<span class="vendas-transfer">Dany deve transferir ' + fmtMoney(-netLaisDany) + ' pra Laís</span>' +
+        '</div>';
+      } else {
+        netCard = '<div class="vendas-card good">' +
+          '<p class="vendas-card-label">✅ Sem acertos pendentes</p>' +
+          '<p class="vendas-card-total">Tudo certo!</p>' +
+        '</div>';
+      }
+      const itemCards = acertoItems.map(a =>
+        '<div class="vendas-card acerto">' +
+          '<p class="vendas-card-label">' + a.item + '</p>' +
+          '<div class="vendas-acerto-row"><span>' + a.de + '</span><span class="arrow">→</span><span>' + a.para + '</span></div>' +
+          '<p class="vendas-card-total">' + fmtMoney(a.valor) + '</p>' +
+        '</div>'
+      ).join('');
+      acertosBox.innerHTML = netCard + itemCards;
+    }
 
     const descBox = document.getElementById('vendas-desconto');
     const cats = Object.keys(catStats);
@@ -850,7 +928,9 @@
         const vis = vendasStatusVisual(r.status);
         const anuncio = r['preco anuncio'];
         const venda = r['preco venda'];
+        const recebimento = r['recebimento'];
         const sp = ownerSplit(r.dona, typeof venda === 'number' ? venda : anuncio);
+        const tr = typeof venda === 'number' ? calcTransfer(r.dona, recebimento, venda) : null;
         const card = document.createElement('div');
         card.className = 'vendas-item';
         card.innerHTML =
@@ -861,12 +941,14 @@
           '<div class="task-tags" style="margin:6px 0;">' +
             '<span class="tag cat">' + (CATEGORY_ICONS[stripAccents(r.categoria)] || '📌') + ' ' + r.categoria + '</span>' +
             (r.dona ? '<span class="tag who">' + r.dona.trim() + '</span>' : '') +
+            (recebimento ? '<span class="tag who" style="opacity:0.7">💰 ' + recebimento.trim() + ' recebeu</span>' : '') +
           '</div>' +
           '<div class="vendas-item-prices">' +
             (typeof anuncio === 'number' ? '<span>Anúncio: <strong>' + fmtMoney(anuncio) + '</strong></span>' : '') +
             (typeof venda === 'number' ? '<span>Venda: <strong>' + fmtMoney(venda) + '</strong></span>' : '<span class="vendas-pending">ainda não vendido</span>') +
           '</div>' +
-          (sp ? '<p class="vendas-item-split">Laís: ' + fmtMoney(sp.lais) + ' · Dany: ' + fmtMoney(sp.dany) + (typeof venda !== 'number' ? ' (projeção pelo anúncio)' : '') + '</p>' : '');
+          (sp ? '<p class="vendas-item-split">Laís: ' + fmtMoney(sp.lais) + ' · Dany: ' + fmtMoney(sp.dany) + (typeof venda !== 'number' ? ' (projeção pelo anúncio)' : '') + '</p>' : '') +
+          (tr ? '<span class="vendas-transfer">' + tr.de + ' → ' + tr.para + ': ' + fmtMoney(tr.valor) + '</span>' : '');
         listBox.appendChild(card);
       });
     }
