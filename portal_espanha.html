@@ -714,12 +714,12 @@
   // Regra de divisão do valor de venda entre Laís e Dany, conforme a "Dona" do item:
   // - Laís: 100% pra Laís
   // - Ambos: 50% / 50%
-  // - Dany: 20% pra Laís (comissão de venda) / 80% pra Dany
+  // - Dany: 100% pra Dany
   function ownerSplit(dona, valor){
     if(typeof valor !== 'number') return null;
     const d = stripAccents(dona);
     if(d === 'lais') return {lais: valor, dany: 0};
-    if(d === 'dany') return {lais: valor*0.2, dany: valor*0.8};
+    if(d === 'dany') return {lais: 0, dany: valor};
     if(d === 'ambos') return {lais: valor*0.5, dany: valor*0.5};
     return {lais: 0, dany: 0};
   }
