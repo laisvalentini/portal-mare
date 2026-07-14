@@ -435,7 +435,7 @@
         const dateStr = pad(day) + '/' + pad(month+1) + '/' + year;
         // se a hora for exatamente 00:00:00, trata como data "pura" (sem hora)
         const showTime = hasTime && !(+dtm[4] === 0 && +dtm[5] === 0 && (dtm[6] === undefined || +dtm[6] === 0));
-        return showTime ? dateStr + ' ' + pad(+dtm[4]) + ':' + pad(+$tm[5]) : dateStr;
+        return showTime ? dateStr + ' ' + pad(+dtm[4]) + ':' + pad(+dtm[5]) : dateStr;
       }
       return v.trim();
     }
@@ -455,7 +455,7 @@
       cols.forEach((name, i) => {
         if(!name) return; // ignora colunas extras sem cabeçalho
         const cell = r.c && r.c[i];
-        // mantém number cru (no formatado em string) quando keepNumeric=true,
+        // mantém number cru (não formatado em string) quando keepNumeric=true,
         // útil pra colunas de valor monetário que a gente precisa somar/multiplicar
         if(keepNumeric && cell && typeof cell.v === 'number'){ obj[name] = cell.v; return; }
         obj[name] = formatGvizValue(cell);
@@ -466,7 +466,7 @@
 
   async function fetchGviz(extraParam, keepNumeric){
     const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&headers=1' + (extraParam || '') + '&t=' + Date.now();
-    const res = await fetch(url, {cache:'nostore'});
+    const res = await fetch(url, {cache:'no-store'});
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
     return parseGvizText(text, keepNumeric);
@@ -764,7 +764,7 @@
   function vendasStatusVisual(status){
     const s = stripAccents(status);
     if(s === 'vendido') return {cls:'status-done'};
-    if(s === 'anunciado') return {cls:'status-soon'm;
+    if(s === 'anunciado') return {cls:'status-soon'};
     return {cls:'status-neutral'};
   }
 
