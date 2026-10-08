@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pré-onboarding Maré</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: faixa escura de abertura, depois trilha de etapas à esquerda + cartão do formulário. Uma etapa por vez. */
+:root{
+--bg:#F0EDE7;
+--ink:#1A1818;
+--dark:#1C1C1C;
+--sand:#C9B99A;
+--sand-soft:#E6DDCB;
+--card:#FFFFFF;
+--muted:#6E675D;
+--line:#DDD6CA;
+--danger:#A3472F;
+--display:"Archivo","Helvetica Neue",Arial,sans-serif;
+--body:"Manrope","Helvetica Neue",Arial,sans-serif;
+color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px}
+/* Abertura */
+.hero{background:var(--dark);color:#F4F1EC;padding-block:44px 52px}
+.logo{font-family:var(--display);font-weight:900;font-size:30px;letter-spacing:-.02em;display:inline-block;line-height:1}
+.logo svg{display:block;margin-top:2px}
+.tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--sand);margin:28px 0 10px;font-weight:600}
+.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);line-height:1.05;letter-spacing:-.025em;margin:0;max-width:16ch;text-wrap:balance}
+.hero p{max-width:60ch;color:#D7D1C6;margin:18px 0 0;font-size:16.5px}
+/* Corpo */
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:40px;padding-block:40px 80px}
+.steps{position:sticky;top:24px;align-self:start;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.steps button{all:unset;cursor:pointer;display:flex;gap:12px;align-items:baseline;padding:9px 12px;border-radius:8px;font-size:14.5px;color:var(--muted);width:100%;box-sizing:border-box}
+.steps button:hover{background:var(--sand-soft);color:var(--ink)}
+.steps button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.steps .n{font-family:var(--display);font-weight:800;font-size:12px;min-width:20px;font-variant-numeric:tabular-nums}
+.steps .cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 0 var(--line)}
+.steps .done .n{color:var(--sand)}
+.mobile-progress{display:none}
+.bar{height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink);width:0;transition:width .3s ease}
+.panel{background:var(--card);border-radius:16px;padding:40px 44px;min-width:0}
+.panel-head{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+.panel-head .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel-head h2{font-family:var(--display);font-weight:900;font-size:clamp(26px,3.4vw,34px);letter-spacing:-.02em;line-height:1.1;margin:6px 0 0;text-wrap:balance}
+.panel-head p{margin:12px 0 0;color:var(--muted);max-width:62ch}
+.fields{display:flex;flex-direction:column;gap:28px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field>label,.field legend{font-weight:700;font-size:15.5px;line-height:1.4;padding:0}
+.req{color:var(--danger);margin-left:2px}
+.help{margin:-4px 0 2px;font-size:14px;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+fieldset legend{margin-bottom:8px}
+.subhead{display:flex;align-items:center;gap:10px;margin-top:10px;font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.subhead::before{content:"✦";color:var(--sand);font-size:14px;letter-spacing:0}
+.subhead::after{content:"";flex:1;height:1px;background:var(--line)}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=url],textarea,select{
+font:inherit;font-size:15.5px;color:var(--ink);background:var(--bg);border:1.5px solid transparent;border-radius:10px;padding:12px 14px;width:100%;transition:border-color .15s,background .15s}
+textarea{min-height:96px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--ink);background:#fff}
+input::placeholder,textarea::placeholder{color:#A39C90}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 20px) 52%,calc(100% - 15px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:40px}
+.field.invalid input{border-color:var(--danger)}
+.err{color:var(--danger);font-size:13.5px;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px 24px}
+.grid2>.full{grid-column:1/-1}
+[hidden]{display:none!important}
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.chip span{display:inline-block;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:14.5px;line-height:1.3;background:#fff;transition:all .15s;user-select:none}
+.chip:hover span{border-color:var(--sand)}
+.chip input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip input:focus-visible+span{outline:2px solid var(--sand);outline-offset:2px}
+.other{margin-top:8px}
+/* Organograma */
+.org{display:flex;flex-direction:column;gap:8px}
+.org-head,.org-row{display:grid;grid-template-columns:minmax(0,1.5fr) 80px minmax(0,1.3fr) minmax(0,1.3fr) 36px;gap:8px;align-items:center}
+.org-head{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 2px}
+.org-row input{padding:10px 12px;font-size:14.5px}
+.org-row input[type=number]{text-align:center}
+.icon-btn{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:var(--muted);font-size:20px;line-height:1}
+.icon-btn:hover{background:var(--bg);color:var(--danger)}
+.icon-btn:focus-visible{outline:2px solid var(--ink)}
+.add-btn{all:unset;cursor:pointer;align-self:flex-start;margin-top:4px;font-weight:700;font-size:14.5px;padding:8px 2px;border-bottom:1.5px solid var(--sand)}
+.add-btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.org-total{font-size:14px;color:var(--muted);margin-top:4px}
+.org-total b{color:var(--ink);font-variant-numeric:tabular-nums}
+/* Checklist de arquivos */
+.check{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:10px;background:var(--bg);cursor:pointer}
+.check+.check{margin-top:8px}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--ink);flex:none;cursor:pointer}
+.check span{font-size:15px}
+.folder{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;background:var(--dark);color:#F4F1EC;border-radius:14px;padding:22px 24px}
+.folder p{margin:0;max-width:44ch;color:#D7D1C6;font-size:15px}
+.folder strong{color:#fff;display:block;font-family:var(--display);font-size:18px;font-weight:800;margin-bottom:2px}
+/* Botões */
+.btn{all:unset;cursor:pointer;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15.5px;padding:14px 26px;border-radius:999px;white-space:nowrap;transition:transform .1s,background .15s}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid var(--sand);outline-offset:3px}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:#000}
+.btn-sand{background:var(--sand);color:var(--dark)}
+.btn-sand:hover{background:#D6C8AC}
+.btn-ghost{color:var(--ink);padding-inline:6px}
+.btn-ghost:hover{text-decoration:underline}
+.btn[aria-disabled=true]{opacity:.5;pointer-events:none}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
+.saved{font-size:13px;color:var(--muted)}
+/* Tela final */
+.done-box{text-align:left}
+.done-box h2{font-family:var(--display);font-weight:900;font-size:clamp(28px,4vw,40px);letter-spacing:-.02em;line-height:1.08;margin:0 0 12px}
+.done-box p{color:var(--muted);max-width:56ch}
+.fallback{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+.fallback textarea{min-height:260px;font-size:13.5px;font-family:ui-monospace,Menlo,monospace}
+@media (max-width:860px){
+.layout{grid-template-columns:minmax(0,1fr);gap:20px;padding-block:20px 60px}
+.steps{display:none}
+.mobile-progress{display:flex;flex-direction:column;gap:8px;position:sticky;top:0;z-index:5;background:var(--bg);padding-block:12px;font-size:13px;color:var(--muted);font-weight:600}
+.panel{padding:26px 20px;border-radius:14px}
+.grid2{grid-template-columns:minmax(0,1fr)}
+.org-head{display:none}
+.org-row{grid-template-columns:minmax(0,1fr) 70px 36px;background:var(--bg);padding:10px;border-radius:10px}
+.org-row input{background:#fff}
+.org-row .area{grid-column:1/2}
+.org-row .lider,.org-row .obs{grid-column:1/-1}
+.org-row .icon-btn{grid-row:1;grid-column:3}
+.hero{padding-block:32px 38px}
+.saved{display:none}
+.btn{padding:13px 20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hero">
+<div class="wrap">
+<div class="logo" aria-label="maré">maré
+<svg width="78" height="8" viewBox="0 0 78 8" aria-hidden="true"><path d="M1 5 Q 7.5 0.5 14 5 T 27 5 T 40 5 T 53 5 T 66 5 T 77 4" fill="none" stroke="#C9B99A" stroke-width="2.4" stroke-linecap="round"/></svg>
+</div>
+<div class="tag">Pré-onboarding · Mentoria individual</div>
+<h1>Antes da nossa primeira conversa</h1>
+<p>Este formulário me ajuda a chegar na call de onboarding já conhecendo o seu negócio, pra gente usar o tempo juntos para pensar, e não para levantar informação. Responda do seu jeito: valores aproximados resolvem e o que você não souber pode ficar em branco. Suas respostas ficam salvas neste navegador, então dá pra parar e continuar depois.</p>
+</div>
+</header>
+<main class="wrap layout">
+<ol class="steps" id="steps" aria-label="Etapas do formulário"></ol>
+<div style="min-width:0">
+<div class="mobile-progress" id="mprog"><span id="mprogTxt"></span><div class="bar"><i id="mbar"></i></div></div>
+<form class="panel" id="form" novalidate>
+<div id="section"></div>
+<div class="nav" id="nav">
+<button type="button" class="btn btn-ghost" id="prev">← Voltar</button>
+<span class="saved" id="saved" aria-live="polite"></span>
+<button type="button" class="btn btn-dark" id="next">Próximo →</button>
+</div>
+</form>
+</div>
+</main>
+<script>
+/* ===== CONFIGURAÇÃO (Laís preenche) ===== */
+const CONFIG = {
+// URL do App da Web do Google Apps Script (termina em /exec)
+SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzZEO4mDccexXBq_XNLTv3MLXtrZfZlAPTkzFlL79L3v8oxO0gfJzQ1SxHAq2-17l9O/exec",
+// Link da pasta do mentorado no Google Drive
+PASTA_URL: "",
+// WhatsApp da Laís para o caso de o envio falhar (só números, com DDI e DDD)
+WHATSAPP_LAIS: ""
+};
+/* ======================================== */
+const FAIXAS = ["Até R$ 10 mil","R$ 10 a 30 mil","R$ 30 a 60 mil","R$ 60 a 100 mil","R$ 100 a 200 mil","R$ 200 a 400 mil","Acima de R$ 400 mil","Ainda não vendemos","Não sei"];
+const INVEST = ["Nada","Até R$ 500","R$ 500 a 1.500","R$ 1.500 a 3.000","R$ 3.000 a 6.000","Acima de R$ 6.000"];
+const METAS_SIM = ["Sim, definidas e acompanhadas","Sim, mas informais (de cabeça)"];
+const ORG_PADRAO = ["Cozinha quente","Sushi bar / cozinha fria","Salão (garçons e atendimento)","Caixa / recepção","Expedição do delivery","Entregadores próprios","Produção de congelados","Compras e estoque","Administrativo / financeiro","Marketing e redes sociais","Vendas B2B"];
+const SECTIONS = [
+{ id:"negocio", title:"Vocês e o negócio", intro:"Quem está por trás do restaurante e como a sociedade funciona hoje.", fields:[
+{id:"nome",type:"text",label:"Seu nome",required:true,half:true},
+{id:"whatsapp",type:"tel",label:"WhatsApp",required:true,half:true,placeholder:"(11) 9...."},
+{id:"email",type:"email",label:"E-mail",half:true},
+{id:"restaurante",type:"text",label:"Nome do restaurante",required:true,half:true},
+{id:"instagram",type:"text",label:"Instagram do restaurante",half:true,placeholder:"@"},
+{id:"site",type:"text",label:"Site ou cardápio online",half:true,placeholder:"link"},
+{id:"endereco",type:"text",label:"Endereço ou bairro do restaurante"},
+{id:"tempo",type:"radio",label:"Há quanto tempo o restaurante está aberto?",options:["Menos de 1 ano","1 a 3 anos","3 a 5 anos","5 a 10 anos","Mais de 10 anos"]},
+{id:"historia",type:"textarea",label:"Como o restaurante nasceu?",help:"Pode ser curto: quem começou, por quê e o que mudou de lá pra cá."},
+{type:"heading",label:"Sociedade e papéis"},
+{id:"papel_voce",type:"textarea",label:"Qual é o seu papel no dia a dia?",help:"O que passa pela sua mão: cozinha, compras, financeiro, atendimento, marketing, vendas B2B..."},
+{id:"papel_esposa",type:"textarea",label:"Qual é o papel da sua esposa no negócio?",help:"Nome dela e as atividades que ela assume."},
+{id:"papel_sogro",type:"textarea",label:"Como é a participação do seu sogro hoje?",help:"Ele é sócio, mas não está no operacional. Participa de decisões? Opina em quê? Com que frequência acompanha?"},
+{id:"outros_socios",type:"textarea",label:"Tem mais algum sócio ou pessoa-chave na gestão?"},
+{id:"decisoes",type:"textarea",label:"Quem decide o quê?",help:"Ex.: cardápio e preço, contratações, investimentos, marketing, abertura de novos canais."}
+]},
+{ id:"equipe", title:"Equipe", intro:"Um organograma simples para eu ver como as pessoas estão distribuídas. Já deixei algumas áreas sugeridas: apague o que não existe e acrescente o que faltar.", fields:[
+{id:"total_func",type:"number",label:"Quantas pessoas trabalham no restaurante hoje, no total?",help:"Incluindo vocês, funcionários registrados, freelas fixos e entregadores próprios."},
+{id:"org",type:"org",label:"Organograma por área",help:"Para cada área: quantas pessoas, quem lidera e qualquer observação (ex.: “meio período”, “minha esposa cobre aos sábados”)."},
+{id:"mkt_quem",type:"radio",label:"Quem cuida do marketing hoje?",options:["Eu","Minha esposa","Alguém da equipe","Agência","Freelancer","Ninguém de forma fixa"]},
+{id:"quem_executa",type:"textarea",label:"Além de você, quem vai participar ou executar as tarefas da mentoria?"},
+{id:"horas",type:"radio",label:"Quantas horas por semana você consegue dedicar às tarefas da mentoria?",options:["Até 2 horas","2 a 4 horas","4 a 6 horas","Mais de 6 horas"]}
+]},
+{ id:"marca", title:"Marca e posicionamento", intro:"Como vocês enxergam o restaurante e como acham que o mercado enxerga vocês.", fields:[
+{id:"estilo",type:"chips",label:"Qual é o estilo da casa?",help:"Marque quantos fizerem sentido.",options:["Tradicional japonês","Contemporâneo / autoral","Rodízio","À la carte","Temakeria","Omakase","Fusion","Comida caseira japonesa"],other:true},
+{id:"frase",type:"textarea",label:"Como você descreveria o restaurante em uma frase para alguém que nunca foi?"},
+{id:"diferencial",type:"textarea",label:"O que vocês fazem de diferente dos outros japoneses?"},
+{id:"elogios",type:"textarea",label:"O que os clientes mais elogiam?",half:true},
+{id:"reclamacoes",type:"textarea",label:"E do que eles mais reclamam?",half:true},
+{id:"concorrentes",type:"textarea",label:"Quem são seus principais concorrentes?",help:"Até 3. Podem ser do bairro, do iFood ou de congelados."},
+{id:"referencias",type:"textarea",label:"Quais marcas você admira?",help:"De qualquer setor. Conte o que te chama atenção nelas."},
+{id:"identidade",type:"radio",label:"Vocês têm identidade visual definida?",options:["Sim, com manual de marca","Só o logo","Não temos"]}
+]},
+{ id:"clientes", title:"Clientes", intro:"Provavelmente cada canal tem um cliente diferente. Descreva do jeito que você enxerga hoje.", fields:[
+{id:"cli_salao",type:"textarea",label:"Quem é o cliente do salão?",help:"Idade, perfil, de onde vem, com quem costuma ir."},
+{id:"cli_delivery",type:"textarea",label:"Quem é o cliente do delivery?"},
+{id:"cli_congelados",type:"textarea",label:"Quem compra os congelados?",help:"Consumidor final e compradores B2B. Se ainda não vende para algum deles, conte quem você imagina."},
+{id:"ocasioes",type:"chips",label:"Em que ocasiões as pessoas consomem de vocês?",options:["Almoço em dia de semana","Jantar","Fim de semana em família","Data especial","Encontro a dois","Grupos e corporativo","Refeição prática em casa"],other:true},
+{id:"pico",type:"textarea",label:"Quais são os dias e horários de mais movimento? E os mais fracos?"}
+]},
+{ id:"numeros", title:"Números por canal", intro:"Valores aproximados resolvem. A ideia é enxergar o peso de cada frente no negócio.", fields:[
+{id:"fat_total",type:"select",label:"Faturamento médio mensal total",options:FAIXAS.filter(f=>f!=="Ainda não vendemos")},
+{id:"sazonalidade",type:"textarea",label:"Quais são os meses mais fortes e mais fracos do ano?"},
+{type:"heading",label:"Salão",group:"Salão"},
+{id:"salao_fat",type:"select",label:"Faturamento médio mensal",options:FAIXAS,half:true},
+{id:"salao_ticket",type:"text",label:"Ticket médio por pessoa",placeholder:"R$",half:true},
+{id:"salao_lugares",type:"number",label:"Quantos lugares tem o salão?",half:true},
+{id:"salao_atend",type:"text",label:"Pessoas atendidas por mês",placeholder:"aproximado",half:true},
+{type:"heading",label:"Delivery",group:"Delivery"},
+{id:"del_fat",type:"select",label:"Faturamento médio mensal",options:FAIXAS,half:true},
+{id:"del_ticket",type:"text",label:"Ticket médio por pedido",placeholder:"R$",half:true},
+{id:"del_pedidos",type:"text",label:"Pedidos por mês",placeholder:"aproximado",half:true},
+{id:"del_nota",type:"text",label:"Nota atual no iFood",placeholder:"ou na principal plataforma",half:true},
+{id:"del_plataformas",type:"chips",label:"Por onde vocês vendem?",options:["iFood","99Food","Keeta","Rappi","WhatsApp / entrega própria","Site próprio"],other:true},
+{type:"heading",label:"Congelados · consumidor final",group:"Congelados B2C"},
+{id:"cb2c_status",type:"radio",label:"Em que pé está essa frente?",options:["Ainda não vendemos","Começando agora","Já vendemos com regularidade"]},
+{id:"cb2c_fat",type:"select",label:"Faturamento médio mensal",options:FAIXAS},
+{id:"cb2c_produtos",type:"textarea",label:"Quais produtos e a que preço?"},
+{type:"heading",label:"Congelados · B2B",group:"Congelados B2B"},
+{id:"b2b_fat",type:"select",label:"Faturamento médio mensal",options:FAIXAS,half:true},
+{id:"b2b_pontos",type:"number",label:"Em quantos pontos de venda vocês estão?",half:true},
+{id:"b2b_onde",type:"textarea",label:"Quais são esses pontos e como vocês chegaram até eles?"},
+{id:"b2b_alvo",type:"chips",label:"Que tipo de cliente B2B vocês querem atingir?",options:["Mini mercados","Empórios","Supermercados","Hortifrutis","Empresas e refeitórios","Hotéis e pousadas","Cafés e bares"],other:true}
+]},
+{ id:"financeiro", title:"Financeiro", intro:"Se vocês já têm um DRE fechado, ele responde quase tudo daqui. Coloque o mais recente na pasta da mentoria.", fields:[
+{id:"dre",type:"radio",label:"Vocês têm um DRE?",help:"DRE é o demonstrativo que junta receitas, custos e o resultado do mês.",options:["Sim, fechado todo mês","Sim, mas está desatualizado","Não, mas controlamos custos em planilha ou sistema","Não temos controle estruturado"]},
+{id:"fin_quem",type:"text",label:"Quem cuida do financeiro?",help:"Vocês, alguém da equipe, contador externo..."},
+{id:"cmv",type:"radio",label:"Vocês sabem o CMV (custo da mercadoria vendida)?",options:["Sim, acompanhamos","Temos uma ideia","Não sabemos"]},
+{id:"cmv_valor",type:"text",label:"Qual o CMV aproximado?",placeholder:"%",showIf:{id:"cmv",in:["Sim, acompanhamos","Temos uma ideia"]}},
+{id:"mkt_invest",type:"select",label:"Quanto vocês investem por mês em marketing hoje?",help:"Somando anúncios, agência, fotógrafo, influenciadores e materiais.",options:INVEST}
+]},
+{ id:"metas", title:"Metas", intro:"Quero entender se existem metas hoje e como vocês acompanham. Se não existem, tudo bem: é uma das coisas que vamos construir.", fields:[
+{id:"tem_metas",type:"radio",label:"Hoje vocês trabalham com metas?",options:[...METAS_SIM,"Não trabalhamos com metas"]},
+{id:"metas_quais",type:"textarea",label:"Quais são essas metas?",help:"Ex.: faturar X por mês, chegar a Y pedidos no delivery, entrar em Z pontos de venda.",showIf:{id:"tem_metas",in:METAS_SIM}},
+{id:"metas_como",type:"textarea",label:"Como vocês medem e acompanham?",help:"Onde ficam os números, com que frequência olham e quem acompanha.",showIf:{id:"tem_metas",in:METAS_SIM}},
+{id:"metas_result",type:"textarea",label:"Como estão os resultados em relação a essas metas?",showIf:{id:"tem_metas",in:METAS_SIM}},
+{id:"indicadores",type:"chips",label:"Quais números você costuma olhar?",options:["Faturamento","Ticket médio","Número de pedidos","CMV","Lucro","Avaliações no iFood ou Google","Clientes novos x recorrentes","Seguidores e engajamento","Nenhum com frequência"]}
+]},
+{ id:"marketing", title:"Marketing e base de clientes", intro:"O que vocês já fazem hoje e, principalmente, como os contatos dos clientes estão organizados.", fields:[
+{id:"canais",type:"chips",label:"Quais canais vocês usam hoje?",options:["Instagram","TikTok","Facebook","Google Meu Negócio","Site","WhatsApp Business","Lista de transmissão","E-mail"],other:true},
+{id:"conteudo",type:"textarea",label:"Quem produz o conteúdo e com que frequência vocês postam?"},
+{type:"heading",label:"Anúncios",group:"Anúncios"},
+{id:"trafego_canal",type:"chips",label:"Para o que vocês fazem anúncios hoje?",options:["Restaurante (salão)","Delivery","Congelados","Não fazemos anúncios"]},
+{id:"trafego_quem",type:"text",label:"Quem configura e acompanha os anúncios?",half:true},
+{id:"trafego_invest",type:"select",label:"Investimento mensal em anúncios",options:INVEST,half:true},
+{id:"trafego_result",type:"textarea",label:"Que resultado você percebe dos anúncios?"},
+{type:"heading",label:"Base de clientes",group:"Base de clientes"},
+{id:"base_onde",type:"chips",label:"Onde ficam os contatos dos clientes hoje?",options:["Planilha","Sistema do caixa / PDV","CRM","Contatos do WhatsApp","Lista de reservas","Só nas plataformas (iFood etc.)","Não guardamos"],other:true},
+{id:"base_qtd",type:"select",label:"Quantos contatos vocês têm, aproximadamente?",options:["Menos de 200","200 a 1.000","1.000 a 3.000","3.000 a 10.000","Mais de 10.000","Não sei"]},
+{id:"base_info",type:"chips",label:"Que informações vocês têm de cada cliente?",options:["Nome","Telefone","E-mail","Aniversário","Endereço","Data do último pedido","Histórico de compras","Canal em que compra"]},
+{id:"base_seg",type:"chips",label:"A base é separada de alguma forma?",options:["Por canal","Pela data do último pedido","Por frequência de compra","Por valor gasto","Clientes B2B separados","Não é separada"]},
+{id:"base_uso",type:"textarea",label:"Vocês usam essa base para alguma ação hoje?",help:"Ex.: promoções, aniversário, reativar quem sumiu, avisar de novidades."},
+{id:"fidelidade",type:"radio",label:"Vocês têm programa de fidelidade?",options:["Sim","Já tivemos","Não"]},
+{id:"acoes",type:"textarea",label:"Já fizeram parcerias, eventos ou ações com influenciadores? Como foi?"},
+{id:"sistemas",type:"text",label:"Quais sistemas vocês usam?",help:"Caixa / PDV, gestor de delivery, cardápio digital, reservas."}
+]},
+{ id:"visao", title:"Visão", intro:"Para fechar a parte das perguntas: para onde você quer levar o restaurante.", fields:[
+{id:"visao_12",type:"textarea",label:"Como você enxerga o restaurante daqui a 12 meses?",help:"Pense em faturamento, canais, equipe, como as pessoas falam da marca e como está a sua rotina."},
+{id:"foco",type:"textarea",label:"Se pudesse colocar energia em uma frente agora, qual seria? Por quê?"},
+{id:"barreiras",type:"textarea",label:"O que hoje te impede de chegar lá?",help:"Tempo, dinheiro, equipe, capacidade de produção, conhecimento..."},
+{id:"sucesso",type:"textarea",label:"O que precisa acontecer para você sentir que a mentoria valeu a pena?"},
+{id:"extra",type:"textarea",label:"Tem algo mais que eu deveria saber antes da nossa conversa?"}
+]},
+{ id:"arquivos", title:"Arquivos", intro:"Criei uma pasta que vai ser a pasta da sua mentoria. Coloque lá o que tiver e marque aqui o que já foi enviado. O que não existir, tudo bem: a gente constrói junto.", fields:[
+{type:"folder"},
+{id:"arq_essenciais",type:"checklist",label:"Essenciais",options:[
+"Cardápio do salão e do delivery",
+"Relatório de vendas do caixa / PDV dos últimos 3 a 6 meses (produtos mais vendidos)",
+"DRE ou planilha de custos mais recente",
+"Prints do Instagram (Insights) dos últimos 90 dias",
+"Prints do painel do iFood (desempenho e avaliações)",
+"Lista dos congelados com preços (consumidor final e B2B)",
+"Lista dos pontos de venda B2B atuais"]},
+{id:"arq_opcionais",type:"checklist",label:"Se tiver",options:[
+"Logo e manual de marca",
+"Fotos de pratos, ambiente, equipe e embalagens",
+"Apresentação comercial ou tabela de preços B2B",
+"Planilha ou exportação da base de clientes"]},
+{id:"arq_obs",type:"textarea",label:"Algum comentário sobre os arquivos?"}
+]}
+];
+/* ===== Estado ===== */
+const KEY = "mare-preonb-v1";
+let state = { step:0, values:{} };
+try { const s = JSON.parse(localStorage.getItem(KEY)||"null"); if (s && s.values) state = s; } catch(e){}
+if (!Array.isArray(state.values.org)) state.values.org = ORG_PADRAO.map(a=>({area:a,qtd:"",lider:"",obs:""}));
+if (state.step >= SECTIONS.length) state.step = 0;
+let saveTimer;
+function persist(){
+clearTimeout(saveTimer);
+saveTimer = setTimeout(()=>{
+try { localStorage.setItem(KEY, JSON.stringify(state)); flash("Salvo neste navegador"); } catch(e){}
+}, 400);
+}
+function flash(t){ const el=document.getElementById("saved"); el.textContent=t; clearTimeout(flash.t); flash.t=setTimeout(()=>el.textContent="",1800); }
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* ===== Render ===== */
+function visible(f){
+if (!f.showIf) return true;
+return f.showIf.in.includes(state.values[f.showIf.id]);
+}
+function fieldHTML(f){
+const v = state.values;
+const req = f.required ? '<span class="req" aria-hidden="true">*</span>' : "";
+const help = f.help ? `<p class="help" id="h_${f.id}">${esc(f.help)}</p>` : "";
+const desc = f.help ? ` aria-describedby="h_${f.id}"` : "";
+const cls = "field" + (f.half ? "" : " full");
+const hide = visible(f) ? "" : " hidden";
+switch (f.type){
+case "heading": return `<div class="subhead full">${esc(f.label)}</div>`;
+case "text": case "email": case "tel": case "number":
+return `<div class="${cls}" data-wrap="${f.id}"${hide}><label for="f_${f.id}">${esc(f.label)}${req}</label>${help}
+<input id="f_${f.id}" name="${f.id}" type="${f.type}" ${f.type==="number"?'min="0" inputmode="numeric"':""} value="${esc(v[f.id])}" placeholder="${esc(f.placeholder||"")}"${desc}${f.required?" required":""}></div>`;
+case "textarea":
+return `<div class="${cls}" data-wrap="${f.id}"${hide}><label for="f_${f.id}">${esc(f.label)}${req}</label>${help}
+<textarea id="f_${f.id}" name="${f.id}"${desc}>${esc(v[f.id])}</textarea></div>`;
+case "select":
+return `<div class="${cls}" data-wrap="${f.id}"${hide}><label for="f_${f.id}">${esc(f.label)}</label>${help}
+<select id="f_${f.id}" name="${f.id}"${desc}><option value="">Selecione</option>${f.options.map(o=>`<option${v[f.id]===o?" selected":""}>${esc(o)}</option>`).join("")}</select></div>`;
+case "radio": case "chips": {
+const multi = f.type==="chips";
+const cur = multi ? (v[f.id]||[]) : v[f.id];
+const opts = f.options.map((o,i)=>{
+const checked = multi ? cur.includes(o) : cur===o;
+return `<label class="chip"><input type="${multi?"checkbox":"radio"}" id="f_${f.id}_${i}" name="${f.id}" value="${esc(o)}"${checked?" checked":""}><span>${esc(o)}</span></label>`;
+}).join("");
+const other = f.other ? `<input class="other" type="text" id="f_${f.id}_outro" name="${f.id}__outro" placeholder="Outro: escreva aqui" value="${esc(v[f.id+"__outro"])}">` : "";
+return `<fieldset class="${cls}" data-wrap="${f.id}"${hide}${desc}><legend>${esc(f.label)}</legend>${help}<div class="chips">${opts}</div>${other}</fieldset>`;
+}
+case "org": return `<div class="field full" data-wrap="org"><label>${esc(f.label)}</label>${help}<div id="org"></div></div>`;
+case "checklist": {
+const cur = v[f.id]||[];
+return `<fieldset class="field full" data-wrap="${f.id}"><legend>${esc(f.label)}</legend>${f.options.map((o,i)=>
+`<label class="check"><input type="checkbox" id="f_${f.id}_${i}" name="${f.id}" value="${esc(o)}"${cur.includes(o)?" checked":""}><span>${esc(o)}</span></label>`).join("")}</fieldset>`;
+}
+case "folder":
+return `<div class="folder full"><div><strong>Pasta da sua mentoria</strong><p>${CONFIG.PASTA_URL ? "Abra a pasta e arraste os arquivos para dentro. Pode organizar do jeito que preferir." : "Vou te mandar o link da pasta pelo WhatsApp."}</p></div>${CONFIG.PASTA_URL ? `<a class="btn btn-sand" href="${esc(CONFIG.PASTA_URL)}" target="_blank" rel="noopener">Abrir pasta ↗</a>` : ""}</div>`;
+}
+return "";
+}
+function renderOrg(){
+const box = document.getElementById("org"); if (!box) return;
+const rows = state.values.org;
+box.innerHTML = `<div class="org"><div class="org-head"><span>Área</span><span>Pessoas</span><span>Quem lidera</span><span>Observação</span><span></span></div>
+${rows.map((r,i)=>`<div class="org-row" data-i="${i}">
+<input class="area" type="text" aria-label="Área" data-k="area" value="${esc(r.area)}" placeholder="Área">
+<input type="number" min="0" inputmode="numeric" aria-label="Pessoas em ${esc(r.area||"esta área")}" data-k="qtd" value="${esc(r.qtd)}" placeholder="0">
+<input class="lider" type="text" aria-label="Quem lidera ${esc(r.area||"esta área")}" data-k="lider" value="${esc(r.lider)}" placeholder="Quem lidera">
+<input class="obs" type="text" aria-label="Observação sobre ${esc(r.area||"esta área")}" data-k="obs" value="${esc(r.obs)}" placeholder="Observação">
+<button type="button" class="icon-btn" data-del="${i}" aria-label="Remover ${esc(r.area||"área")}">×</button></div>`).join("")}
+<button type="button" class="add-btn" id="orgAdd">+ Adicionar área</button>
+<div class="org-total">Somando as áreas: <b id="orgSum">0</b> pessoas</div></div>`;
+updateOrgSum();
+}
+function updateOrgSum(){ const el=document.getElementById("orgSum"); if(el) el.textContent = state.values.org.reduce((a,r)=>a+(parseInt(r.qtd)||0),0); }
+function render(){
+const s = SECTIONS[state.step];
+const n = SECTIONS.length;
+// trilha
+document.getElementById("steps").innerHTML = SECTIONS.map((x,i)=>
+`<li><button type="button" data-go="${i}" class="${i===state.step?"cur":""} ${i<state.step?"done":""}" ${i===state.step?'aria-current="step"':""}><span class="n">${String(i+1).padStart(2,"0")}</span>${esc(x.title)}</button></li>`).join("");
+document.getElementById("mprogTxt").textContent = `Etapa ${state.step+1} de ${n} · ${s.title}`;
+document.getElementById("mbar").style.width = ((state.step+1)/n*100)+"%";
+// seção
+document.getElementById("section").innerHTML = `
+<div class="panel-head"><div class="eyebrow">Etapa ${state.step+1} de ${n}</div><h2>${esc(s.title)}</h2>${s.intro?`<p>${esc(s.intro)}</p>`:""}</div>
+<div class="grid2">${s.fields.map(fieldHTML).join("")}</div>`;
+renderOrg();
+document.getElementById("prev").style.visibility = state.step===0 ? "hidden" : "visible";
+const last = state.step===n-1;
+const next = document.getElementById("next");
+next.textContent = last ? "Enviar respostas" : "Próximo →";
+next.className = "btn " + (last ? "btn-sand" : "btn-dark");
+}
+/* ===== Eventos ===== */
+const form = document.getElementById("form");
+form.addEventListener("submit", e=>e.preventDefault());
+form.addEventListener("input", onChange);
+form.addEventListener("change", onChange);
+function onChange(e){
+const t = e.target;
+const row = t.closest(".org-row");
+if (row){ state.values.org[+row.dataset.i][t.dataset.k] = t.value; updateOrgSum(); persist(); return; }
+if (!t.name) return;
+const name = t.name;
+if (t.type==="checkbox"){
+state.values[name] = [...form.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value);
+} else {
+state.values[name] = t.value;
+}
+if (t.closest(".field.invalid") && t.value.trim()) clearErr(t.closest(".field"));
+// condicionais
+SECTIONS[state.step].fields.forEach(f=>{
+if (f.showIf && f.showIf.id===name){ const w=form.querySelector(`[data-wrap="${f.id}"]`); if (w) w.hidden = !visible(f); }
+});
+persist();
+}
+form.addEventListener("click", e=>{
+const del = e.target.closest("[data-del]");
+if (del){ state.values.org.splice(+del.dataset.del,1); renderOrg(); persist(); return; }
+if (e.target.id==="orgAdd"){ state.values.org.push({area:"",qtd:"",lider:"",obs:""}); renderOrg(); const ins=form.querySelectorAll(".org-row .area"); ins[ins.length-1].focus(); persist(); }
+});
+document.getElementById("steps").addEventListener("click", e=>{
+const b = e.target.closest("[data-go]"); if (!b) return;
+const to = +b.dataset.go;
+if (to > state.step && !validate()) return;
+go(to);
+});
+document.getElementById("prev").addEventListener("click", ()=>go(state.step-1));
+document.getElementById("next").addEventListener("click", ()=>{
+if (!validate()) return;
+if (state.step === SECTIONS.length-1) submit(); else go(state.step+1);
+});
+function go(i){
+state.step = Math.max(0, Math.min(SECTIONS.length-1, i));
+persist(); render();
+window.scrollTo({top: document.querySelector(".layout").offsetTop - 8, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+}
+/* ===== Validação ===== */
+function clearErr(w){ w.classList.remove("invalid"); const m=w.querySelector(".err"); if(m) m.remove(); }
+function validate(){
+// obrigatórios só existem na etapa 1; ao enviar, checa de novo
+const s = state.step===SECTIONS.length-1 ? SECTIONS[0] : SECTIONS[state.step];
+let first = null;
+s.fields.filter(f=>f.required).forEach(f=>{
+if (String(state.values[f.id]||"").trim()) return;
+if (s !== SECTIONS[state.step]) { first = first || f; return; }
+const w = form.querySelector(`[data-wrap="${f.id}"]`);
+if (!w.classList.contains("invalid")){ w.classList.add("invalid"); w.insertAdjacentHTML("beforeend",`<span class="err">Preencha este campo para continuar.</span>`); }
+first = first || f;
+});
+if (!first) return true;
+if (s !== SECTIONS[state.step]) { go(0); setTimeout(validate, 50); return false; }
+const el = document.getElementById("f_"+first.id); if (el) el.focus();
+return false;
+}
+/* ===== Montagem das respostas ===== */
+function collect(){
+const out = [];
+const v = state.values;
+SECTIONS.forEach(s=>{
+let group = "";
+s.fields.forEach(f=>{
+if (f.type==="heading"){ group = f.group || ""; return; }
+if (f.type==="folder" || !visible(f)) return;
+let val = "";
+if (f.type==="org"){
+val = v.org.filter(r=>r.area||r.qtd||r.lider||r.obs).map(r=>{
+const parts = [`${r.area||"(sem nome)"}: ${r.qtd||"?"} pessoa(s)`];
+if (r.lider) parts.push(`lidera ${r.lider}`);
+if (r.obs) parts.push(r.obs);
+return parts.join(" · ");
+}).join("\n");
+} else if (Array.isArray(v[f.id]) || f.type==="chips" || f.type==="checklist"){
+const arr = [...(v[f.id]||[])];
+if (f.other && (v[f.id+"__outro"]||"").trim()) arr.push("Outro: "+v[f.id+"__outro"].trim());
+val = f.type==="checklist" ? arr.map(a=>"✓ "+a).join("\n") : arr.join(", ");
+} else {
+val = String(v[f.id]??"").trim();
+}
+out.push({ secao: s.title, pergunta: (group ? group+" · " : "") + f.label, resposta: val });
+});
+});
+return out;
+}
+function asText(rows){
+let txt = "", sec = "";
+rows.forEach(r=>{
+if (r.secao!==sec){ sec=r.secao; txt += `\n== ${sec.toUpperCase()} ==\n`; }
+if (r.resposta) txt += `\n${r.pergunta}\n${r.resposta}\n`;
+});
+return txt.trim();
+}
+/* ===== Envio ===== */
+async function submit(){
+const btn = document.getElementById("next");
+btn.setAttribute("aria-disabled","true"); btn.textContent = "Enviando...";
+const rows = collect();
+const payload = { enviadoEm: new Date().toISOString(), restaurante: state.values.restaurante||"", nome: state.values.nome||"", respostas: rows };
+let ok = false;
+if (window.google && google.script && google.script.run){
+ok = await new Promise(res=>{
+google.script.run.withSuccessHandler(r=>res(!!(r&&r.ok))).withFailureHandler(()=>res(false)).salvar(JSON.stringify(payload));
+});
+} else if (CONFIG.SCRIPT_URL){
+try {
+await fetch(CONFIG.SCRIPT_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(payload) });
+ok = true;
+} catch(e){ ok = false; }
+}
+done(ok, rows);
+}
+function done(ok, rows){
+document.getElementById("nav").hidden = true;
+const first = (state.values.nome||"").split(" ")[0];
+const sec = document.getElementById("section");
+if (ok){
+sec.innerHTML = `<div class="done-box"><div class="panel-head" style="border:0;margin:0;padding:0"><div class="eyebrow">Tudo certo</div></div>
+<h2>Recebi suas respostas${first?", "+esc(first):""}.</h2>
+<p>Vou estudar tudo com calma antes da nossa call. Se lembrar de algo depois, é só me mandar no WhatsApp ou colocar na pasta da mentoria.</p>
+<p><button type="button" class="btn btn-ghost" id="back">Revisar minhas respostas</button></p></div>`;
+try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+} else {
+const txt = asText(rows);
+const wa = CONFIG.WHATSAPP_LAIS ? `<a class="btn btn-sand" target="_blank" rel="noopener" href="https://wa.me/${esc(CONFIG.WHATSAPP_LAIS)}">Abrir WhatsApp da Laís ↗</a>` : "";
+sec.innerHTML = `<div class="done-box"><h2>Quase lá.</h2>
+<p>Não consegui enviar automaticamente. Copie suas respostas abaixo e me mande pelo WhatsApp, assim nada se perde.</p>
+<div class="fallback"><textarea id="fb" readonly aria-label="Suas respostas">${esc(txt)}</textarea>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn btn-dark" id="copy">Copiar respostas</button>${wa}<button type="button" class="btn btn-ghost" id="back">Voltar ao formulário</button></div></div></div>`;
+document.getElementById("copy").addEventListener("click", async e=>{
+const ta = document.getElementById("fb");
+try { await navigator.clipboard.writeText(ta.value); e.target.textContent = "Copiado ✓"; }
+catch(err){ ta.focus(); ta.select(); e.target.textContent = "Texto selecionado: use Ctrl+C"; }
+});
+}
+document.getElementById("back").addEventListener("click", ()=>{ document.getElementById("nav").hidden=false; document.getElementById("next").removeAttribute("aria-disabled"); render(); });
+}
+render();
+</script>
+</body>
+</html>
